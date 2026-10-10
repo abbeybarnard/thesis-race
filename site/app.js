@@ -654,7 +654,7 @@ jobs:
   // address (or look at the demo preview) to see one any day.
   const PROPHECIES = [
     "Finishes on 1 April 2027 at 00:00:01. One second after the money runs out.",
-    "Projected finish: the year 2081. The thesis will be examined by robots.",
+    "Projected finish: the year 2081. The thesis will be examined by clankers.",
     "Will be \"basically done, just tidying up\" until the heat death of the universe.",
     "Submits one day after the funding ends. The universe has a sense of humour.",
     "Finishing date: ERROR. The crystal ball cracked trying to work it out.",
