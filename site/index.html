@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Chakra+Petch:wght@500;700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
-<link rel="stylesheet" href="style.css?v=14">
+<link rel="stylesheet" href="style.css?v=15">
 </head>
 <body>
 <canvas class="stars" id="stars" aria-hidden="true"></canvas>
@@ -165,19 +165,10 @@
         </div>
       </div>
 
-      <div class="j-send">
-        <button type="submit" class="btn btn-primary btn-big" id="j-submit">Send my entry</button>
-        <p class="j-error" id="j-error" role="alert" hidden></p>
-        <ol class="j-after">
-          <li>GitHub opens in a new tab. Sign in, or make an account if you don't have one.</li>
-          <li>Everything is already filled in. Scroll down and press the green <strong>Create</strong> button.</li>
-          <li>Abbey approves new racers, and you appear on the track a few minutes after that.</li>
-        </ol>
-      </div>
     </form>
 
     <div class="j-card j-setup" id="setup">
-      <h3 class="j-h"><span class="j-n">4</span> <span id="setup-h">Keep your count up to date</span></h3>
+      <h3 class="j-h"><span class="j-n">4</span> <span id="setup-h">Set up your word count</span></h3>
 
       <div class="panel" id="panel-overleaf">
         <ol class="steps">
@@ -211,8 +202,18 @@
             <pre><code id="action-yml"></code></pre></li>
           <li><span><strong>Check it worked.</strong> <a class="g-link" data-g="actions" href="#" target="_blank" rel="noopener">Open your repo's Actions tab</a>. A green tick next to <em>Thesis Race</em> means your count was sent. The leaderboard picks it up within three hours.</span></li>
         </ol>
-        <p class="aside">Only the number leaves your repo. The count runs inside your own repo's GitHub Actions, and the key can't read or change any of your code.</p>
+        <p class="aside">Only the number leaves your repo. The count runs inside your own repo's GitHub Actions, the key can't read or change any of your code, and the race's reporter is pinned to one exact version, so it can't be changed under you. Nobody running the race can see your repo.</p>
       </div>
+    </div>
+    <div class="j-card j-send">
+      <h3 class="j-h"><span class="j-n">5</span> Send your entry</h3>
+        <button type="submit" form="join-form" class="btn btn-primary btn-big" id="j-submit">Send my entry</button>
+        <p class="j-error" id="j-error" role="alert" hidden></p>
+        <ol class="j-after">
+          <li>GitHub opens in a new tab. Sign in, or make an account if you don't have one.</li>
+          <li>Everything is already filled in. Scroll down and press the green <strong>Create</strong> button.</li>
+          <li>Abbey approves new racers, and you appear on the track a few minutes after that.</li>
+        </ol>
     </div>
   </section>
 
@@ -235,6 +236,11 @@
       <details>
         <summary>What gets shared about me?</summary>
         <p>Only your total word count and the date it changed, plus the bits you choose for the leaderboard: your display name, astronaut, mission patch emoji, nickname, and your submission date and notes if you add them. Your thesis itself, and its title, never leave your computer or Overleaf.</p>
+      </details>
+      <details>
+        <summary>Can anyone see my thesis or my private repo?</summary>
+        <p>No, not Abbey and not anyone else. The race never gets access to your files or your repo. If your thesis is on GitHub, the counting runs inside your own repo, using a key that you make and keep in your own repo's secrets, and that key can only post one tiny file holding your word count. The repo name you type on this page stays in your browser and is never sent anywhere.</p>
+        <p>The reporter your repo runs is pinned to one exact version of the race's code, so nobody can change what runs in your repo later. You can read every line of it on <a class="repo-link" href="#">GitHub</a>. The VS Code script works the same way: it counts on your computer and sends only the total.</p>
       </details>
       <details>
         <summary>Who can see the race?</summary>
@@ -277,6 +283,6 @@
 </div>
 
 <div class="tip" id="tip" hidden></div>
-<script src="app.js?v=14"></script>
+<script src="app.js?v=15"></script>
 </body>
 </html>

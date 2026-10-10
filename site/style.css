@@ -502,3 +502,4 @@ button.btn { font: inherit; font-weight: 600; cursor: pointer; }
 .faq details p { margin: 0 0 0.6rem; color: var(--muted); max-width: 44rem; }
 .faq details p strong { color: var(--ink); }
 .faq-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.j-card.j-send { padding: 1.3rem 1.4rem; margin-top: 1rem; }

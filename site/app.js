@@ -100,7 +100,9 @@
   }
 
   function wireLinks(repo) {
-    $("curl-cmd").textContent = $("curl-cmd").textContent.replaceAll("OWNER/REPO", repo);
+    const ref = DATA.race.action_ref || "main";
+    document.querySelectorAll(".repo-link").forEach((a) => (a.href = `https://github.com/${repo}/tree/${ref}`));
+    $("curl-cmd").textContent = `curl -fsSL https://raw.githubusercontent.com/${repo}/${ref}/tools/setup.sh | RACE_REF=${ref} bash`;
     $("curl-cmd").dataset.copy = $("curl-cmd").textContent;
     joinForm(repo);
     logForm(repo);
@@ -186,7 +188,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ${raceRepo}@main
+      - uses: ${raceRepo}@${DATA.race.action_ref || "main"}
         with:
           main: ${main}
           token: \${{ secrets.THESIS_RACE_TOKEN }}

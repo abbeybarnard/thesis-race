@@ -8,8 +8,12 @@ from common import ROOT, all_racers, race
 
 PUBLIC_FIELDS = ("login", "name", "nickname", "emoji", "astro", "deadline", "method", "joined", "history", "note", "quiet")
 
+settings = race()
+# Racers' thesis repos run this repo's reporter, pinned to this exact commit, so later
+# changes here can never reach into their repos without them choosing to update.
+settings["action_ref"] = os.environ.get("GITHUB_SHA", "main")
 out = {
-    "race": race(),
+    "race": settings,
     "generated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     "racers": [{k: r[k] for k in PUBLIC_FIELDS if k in r} for r in all_racers()],
 }

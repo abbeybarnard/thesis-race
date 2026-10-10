@@ -10,6 +10,7 @@
 set -euo pipefail
 
 RACE_REPO="${RACE_REPO:-abbeybarnard/thesis-race}"  # the race this copy belongs to
+RACE_REF="${RACE_REF:-main}"  # the website pins this to one exact commit
 HOME_DIR="$HOME/.thesis-race"
 say() { printf '%s\n' "$*"; }
 tty_ok() { [ -r /dev/tty ] && (exec </dev/tty) 2>/dev/null; }
@@ -55,7 +56,7 @@ fi
 
 # 3. Keep the reporter outside the thesis folder so it never ends up in your thesis repo.
 mkdir -p "$HOME_DIR"
-curl -fsSL "https://raw.githubusercontent.com/$RACE_REPO/main/tools/thesis-race.sh" -o "$HOME_DIR/thesis-race.sh"
+curl -fsSL "https://raw.githubusercontent.com/$RACE_REPO/$RACE_REF/tools/thesis-race.sh" -o "$HOME_DIR/thesis-race.sh"
 chmod +x "$HOME_DIR/thesis-race.sh"
 REPORT="\"$HOME_DIR/thesis-race.sh\" \"$MAINABS\""
 
