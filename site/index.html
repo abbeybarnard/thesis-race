@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>First: The Thesis Race</title>
+<meta name="description" content="A live word-count race for our DPhil year group. Only counts are shared, never theses.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Chakra+Petch:wght@500;700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas class="stars" id="stars" aria-hidden="true"></canvas>
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="topbar">
+      <p class="eyebrow" id="subtitle" hidden></p>
+      <div class="seg skin-switch" role="group" aria-label="Theme">
+        <button type="button" id="skin-space" data-skin-pick="space" aria-pressed="true">🪐 Space</button>
+        <button type="button" id="skin-collider" data-skin-pick="collider" aria-pressed="false">⚛️ Collider</button>
+      </div>
+    </div>
+    <h1 id="title"><span class="kicker">First:</span> The Thesis Race</h1>
+    <p class="lede" id="lede">Everyone's word count, live from orbit. Only the numbers are shared, never the theses.</p>
+    <div class="actions">
+      <a class="btn btn-primary" id="join-btn" href="#join">Join the race</a>
+      <a class="btn" id="log-btn" href="#join">Log my words</a>
+    </div>
+  </header>
+
+  <div class="demo-note" id="demo-note" hidden>Preview with example racers. The real race starts with whoever joins.</div>
+
+  <section class="summary" id="summary" aria-label="Race summary"></section>
+
+  <section class="doom" id="doom" aria-labelledby="doom-h" hidden>
+    <p class="doom-eyebrow"><span class="doom-warn" aria-hidden="true">⚠</span> <span id="doom-h">Funding runs out in</span></p>
+    <div class="doom-clock" id="doom-clock" role="timer" aria-live="off"></div>
+    <p class="doom-date" id="doom-date"></p>
+    <p class="doom-line" id="doom-line"></p>
+  </section>
+
+  <section aria-labelledby="track-h">
+    <div class="section-head">
+      <h2 id="track-h">In orbit</h2>
+      <p class="hint" id="track-hint">Everyone flies anticlockwise towards the finish gate.</p>
+    </div>
+    <div class="orbit" id="orbit"></div>
+    <div class="lanes" id="lanes" role="list"></div>
+    <h3 class="crew-h" id="crew-h">The Launch Crew</h3>
+    <ul class="crew" id="crew"></ul>
+  </section>
+
+  <section aria-labelledby="board-h">
+    <div class="section-head">
+      <h2 id="board-h">Leaderboard</h2>
+      <div class="seg" role="group" aria-label="Sort leaderboard by">
+        <button type="button" id="sort-words" data-sort="words" aria-pressed="true">Words</button>
+        <button type="button" id="sort-week" data-sort="week" aria-pressed="false">This week</button>
+        <button type="button" id="sort-streak" data-sort="streak" aria-pressed="false">Streak</button>
+      </div>
+    </div>
+    <div class="table-scroll"><table class="board" id="board"></table></div>
+  </section>
+
+  <section aria-labelledby="predict-h">
+    <div class="section-head">
+      <h2 id="predict-h">Crystal ball</h2>
+      <p class="hint">Predictions from each person's pace over the last four weeks. The band spans their last-week and four-week pace.</p>
+    </div>
+    <div class="predict-headline" id="predict-headline"></div>
+    <div class="predict" id="predict"></div>
+  </section>
+
+  <section aria-labelledby="chart-h">
+    <div class="section-head"><h2 id="chart-h">Flight paths</h2></div>
+    <div class="panel-box">
+      <div id="chart"></div>
+      <div class="legend" id="legend"></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="awards-h">
+    <div class="section-head"><h2 id="awards-h">Trophy cabinet</h2></div>
+    <div class="awards" id="awards"></div>
+  </section>
+
+  <section aria-labelledby="heat-h">
+    <div class="section-head">
+      <h2 id="heat-h">Group writing days</h2>
+      <p class="hint">Words added by everyone together, day by day.</p>
+    </div>
+    <div class="heat-scroll"><div class="heat" id="heat"></div></div>
+  </section>
+
+  <section class="join" id="join" aria-labelledby="join-h">
+    <div class="section-head"><h2 id="join-h">Join in two minutes</h2></div>
+    <div class="builder">
+      <div class="builder-preview" id="builder-preview" aria-hidden="true"></div>
+      <div class="builder-controls">
+        <h3 class="builder-h" id="builder-h">Design your astronaut</h3>
+        <div class="builder-grid">
+          <label for="b-suit">Colour<select id="b-suit" data-part="suit"></select></label>
+          <label class="astro-only" for="b-visor">Visor<select id="b-visor" data-part="visor"></select></label>
+          <label class="astro-only" for="b-top">Helmet topper<select id="b-top" data-part="top"></select></label>
+          <label class="astro-only" for="b-pack">Backpack<select id="b-pack" data-part="pack"></select></label>
+          <label for="b-patch">Mission patch<input id="b-patch" maxlength="8" value="🛸"></label>
+        </div>
+        <div class="actions">
+          <a class="btn btn-primary" id="builder-join" href="#">Join with this astronaut</a>
+          <button type="button" class="btn" id="builder-random">Surprise me</button>
+        </div>
+      </div>
+    </div>
+    <p class="join-lede">You'll need a GitHub account. Pick how you write:</p>
+    <div class="tabs" role="tablist" aria-label="How you write">
+      <button type="button" role="tab" id="tab-overleaf" aria-controls="panel-overleaf" aria-selected="true">Overleaf</button>
+      <button type="button" role="tab" id="tab-local" aria-controls="panel-local" aria-selected="false">VS Code or local LaTeX</button>
+      <button type="button" role="tab" id="tab-github" aria-controls="panel-github" aria-selected="false">Thesis on GitHub</button>
+    </div>
+
+    <div class="panel" role="tabpanel" id="panel-overleaf" aria-labelledby="tab-overleaf">
+      <ol class="steps">
+        <li><span>Fill in the <a class="join-link" href="#">Join the race</a> form and choose <em>By hand</em>. Add your thesis title if you'd like a silly racing nickname.</span></li>
+        <li><span>Whenever you like, open <strong>Menu → Word Count</strong> in Overleaf and copy the total.</span></li>
+        <li><span>Paste it into the <a class="log-link" href="#">Log my words</a> form. Bookmark that link; it takes ten seconds.</span></li>
+      </ol>
+      <p class="aside">Using Overleaf's GitHub sync? Then the <em>Thesis on GitHub</em> route makes it fully automatic.</p>
+    </div>
+
+    <div class="panel" role="tabpanel" id="panel-local" aria-labelledby="tab-local" hidden>
+      <ol class="steps">
+        <li><span>Fill in the <a class="join-link" href="#">Join the race</a> form and choose <em>Automatic</em>.</span></li>
+        <li><span>Install the <a href="https://cli.github.com">GitHub CLI</a> and let it make gists:</span>
+          <pre><code>gh auth login
+gh auth refresh -s gist</code></pre></li>
+        <li><span>From your thesis folder, download the reporter and run it once:</span>
+          <pre><code id="curl-cmd">curl -fsSLO https://raw.githubusercontent.com/OWNER/REPO/main/tools/thesis-race.sh
+bash thesis-race.sh main.tex --hook</code></pre></li>
+      </ol>
+      <p class="aside"><code>--hook</code> reports again after every git commit. Without git, run <code>bash thesis-race.sh main.tex</code> whenever you like, or add it as a VS Code task. It counts with <code>texcount</code> on your machine and sends only the total.</p>
+    </div>
+
+    <div class="panel" role="tabpanel" id="panel-github" aria-labelledby="tab-github" hidden>
+      <ol class="steps">
+        <li><span>Fill in the <a class="join-link" href="#">Join the race</a> form and choose <em>Automatic</em>.</span></li>
+        <li><span>Make a <a href="https://github.com/settings/tokens/new?scopes=gist&amp;description=Thesis%20Race">token with only the <em>gist</em> box ticked</a>, and save it in your thesis repo as a secret called <code>THESIS_RACE_TOKEN</code>.</span></li>
+        <li><span>Add this file to your thesis repo as <code>.github/workflows/thesis-race.yml</code>:</span>
+          <pre><code id="action-yml">on: { push: {}, schedule: [{ cron: "0 22 * * *" }] }
+jobs:
+  count:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: OWNER/REPO@main
+        with:
+          main: main.tex
+          token: ${{ secrets.THESIS_RACE_TOKEN }}</code></pre></li>
+      </ol>
+      <p class="aside">Your repo can stay private. The count runs inside your own repo and only the number leaves it.</p>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p id="updated"></p>
+    <p>Counts come from <code>texcount</code> or Overleaf, so they include headings and captions. Pages are estimated at <span id="wpp">300</span> words each. The Very Hungry Caterpillar is about <span id="cat">224</span> words long.</p>
+    <p class="credit">Made with love by Abbey, Jasmine, and Claude.</p>
+  </footer>
+</div>
+
+<div class="tip" id="tip" hidden></div>
+<script src="app.js"></script>
+</body>
+</html>

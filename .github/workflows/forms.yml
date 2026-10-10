@@ -1,0 +1,53 @@
+name: Race forms
+on:
+  issues:
+    types: [opened, labeled]
+permissions:
+  contents: write
+  issues: write
+  actions: write
+concurrency:
+  group: race-data
+  cancel-in-progress: false
+jobs:
+  handle:
+    # New racers wait for the owner to add the "approved" label; log forms and profile updates go straight through.
+    if: >-
+      (github.event.action == 'opened' && (contains(github.event.issue.labels.*.name, 'join') || contains(github.event.issue.labels.*.name, 'log'))) ||
+      (github.event.action == 'labeled' && github.event.label.name == 'approved')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python scripts/handle_issue.py
+        env:
+          RACE_OWNER: ${{ github.repository_owner }}
+      - name: Save the change
+        env:
+          LOGIN: ${{ github.event.issue.user.login }}
+          KIND: ${{ contains(github.event.issue.labels.*.name, 'join') && 'Join' || 'Log words' }}
+        run: |
+          if [ "$(cat result.txt)" = ok ] && [ -n "$(git status --porcelain data)" ]; then
+            git config user.name "thesis-race-bot"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add data
+            git commit -m "$KIND: @$LOGIN"
+            git pull --rebase --quiet && git push
+          fi
+      - name: Reply
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUMBER: ${{ github.event.issue.number }}
+        run: |
+          case "$(cat result.txt)" in
+            ok)       gh issue comment "$NUMBER" --body-file reply.md
+                      gh issue edit "$NUMBER" --remove-label "awaiting approval" || true
+                      gh issue close "$NUMBER" --reason completed
+                      gh workflow run pages.yml ;;
+            pending)  gh issue comment "$NUMBER" --body-file reply.md
+                      gh issue edit "$NUMBER" --add-label "awaiting approval" ;;
+            rejected) gh issue comment "$NUMBER" --body-file reply.md
+                      gh issue close "$NUMBER" --reason "not planned" ;;
+          esac

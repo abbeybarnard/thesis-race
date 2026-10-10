@@ -1,0 +1,74 @@
+name: 🏁 Join the race
+description: Put yourself on the track. Only your word count is ever shared, never your thesis.
+title: "Join the race"
+labels: ["join"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Fill this in, press **Submit new issue**, and a bot adds you to the leaderboard within a minute or two.
+        You can submit it again later to change anything.
+  - type: input
+    id: name
+    attributes:
+      label: Display name
+      description: How you'll appear on the leaderboard. A nickname is fine.
+      placeholder: Abbey
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: "### 🧑‍🚀 Your astronaut\nEveryone races as an astronaut. Try outfits on the leaderboard's *Design your astronaut* panel, or just pick here. You can change it any time by submitting this form again."
+  - type: dropdown
+    id: suit
+    attributes:
+      label: Suit colour
+      options: [White, Lilac, Pink, Sunshine, Mint, Sky, Tangerine, Midnight]
+  - type: dropdown
+    id: visor
+    attributes:
+      label: Visor
+      options: [Gold, Rainbow, Mirror, Rose, Shadow]
+  - type: dropdown
+    id: top
+    attributes:
+      label: Helmet topper
+      options: [None, Antenna, Bunny ears, Cat ears, Party hat, Halo, Bow, Crown]
+  - type: dropdown
+    id: pack
+    attributes:
+      label: Backpack
+      options: [Classic, Jetpack flames]
+  - type: input
+    id: emoji
+    attributes:
+      label: Mission patch emoji
+      description: One emoji for the badge on your suit.
+      placeholder: "🛸"
+  - type: input
+    id: title
+    attributes:
+      label: Thesis title (optional)
+      description: Used only to pick you a silly racing nickname, and not saved or shown on the leaderboard. This form is public on GitHub, so a vague working title is fine.
+      placeholder: Weakly interacting things in a very big tank
+  - type: input
+    id: deadline
+    attributes:
+      label: Submission date (optional)
+      description: When you plan to submit, as YYYY-MM-DD. Adds a countdown and a crystal-ball prediction of your count on the day.
+      placeholder: "2027-09-30"
+  - type: input
+    id: start
+    attributes:
+      label: Words so far
+      description: Optional. Your current count, so you start in the right place.
+      placeholder: "2300"
+  - type: dropdown
+    id: method
+    attributes:
+      label: How will you track your words?
+      options:
+        - Automatic (VS Code, local LaTeX, or a GitHub-synced thesis)
+        - By hand (Overleaf, or any editor that shows a word count)
+    validations:
+      required: true

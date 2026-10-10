@@ -1,0 +1,23 @@
+name: Thesis Race reporter
+description: Count a LaTeX thesis and report only the word count to the Thesis Race.
+branding:
+  icon: flag
+  color: red
+inputs:
+  main:
+    description: Path to your main .tex file
+    default: main.tex
+  token:
+    description: A GitHub token with only the "gist" scope, stored as a secret
+    required: true
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: curl -fsSL https://mirrors.ctan.org/support/texcount/texcount.pl -o "$RUNNER_TEMP/texcount.pl"
+    - shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+        TEXCOUNT: ${{ runner.temp }}/texcount.pl
+        MAIN: ${{ inputs.main }}
+      run: '"$GITHUB_ACTION_PATH/tools/thesis-race.sh" "$MAIN"'

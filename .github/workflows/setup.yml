@@ -1,0 +1,21 @@
+name: One-time setup
+# Creates the labels the race forms rely on. Safe to run again.
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/setup.yml]
+  workflow_dispatch:
+permissions:
+  issues: write
+jobs:
+  labels:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh label create join -c FF5FB0 -d "Join the race form" --force
+          gh label create log -c B18CFF -d "Log my words form" --force
+          gh label create approved -c 72E3B2 -d "Owner: add this to let a new racer in" --force
+          gh label create "awaiting approval" -c FFD56B -d "New racer waiting for the owner" --force

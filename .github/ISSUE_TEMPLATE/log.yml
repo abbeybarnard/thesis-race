@@ -1,0 +1,24 @@
+name: ✍️ Log my words
+description: Record your current word count. Takes ten seconds.
+title: "Log my words"
+labels: ["log"]
+body:
+  - type: input
+    id: words
+    attributes:
+      label: Word count
+      description: Your thesis's total word count right now. In Overleaf it's under Menu → Word Count.
+      placeholder: "23410"
+    validations:
+      required: true
+  - type: input
+    id: date
+    attributes:
+      label: Date (optional)
+      description: Leave blank for today. Use YYYY-MM-DD to fill in a past day.
+      placeholder: "2026-10-09"
+  - type: input
+    id: note
+    attributes:
+      label: Note (optional, public)
+      description: A line for the leaderboard, like "Finally finished the detector chapter".
