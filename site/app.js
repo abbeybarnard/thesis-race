@@ -651,7 +651,7 @@ jobs:
   }
   // Easter egg: on roughly one day in five, the crystal ball picks someone and declares
   // they'll never make it. Same person and line for everyone all day; add ?prophecy to the
-  // address to see one any day.
+  // address (or look at the demo preview) to see one any day.
   const PROPHECIES = [
     "Finishes on 1 April 2027 at 00:00:01. One second after the money runs out.",
     "Projected finish: the year 2081. The thesis will be examined by robots.",
@@ -665,7 +665,7 @@ jobs:
     "Finishes just as their references finally compile. Estimated: never.",
   ];
   function cursedToday() {
-    const forced = /[?&]prophecy\b/.test(location.search);
+    const forced = DATA.demo || /[?&]prophecy\b/.test(location.search); // the demo preview always shows one
     if (!racers.length) return null;
     let h = 2166136261;
     for (const c of `thesis-race|${TODAY}`) h = Math.imul(h ^ c.codePointAt(0), 16777619) >>> 0;
