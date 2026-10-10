@@ -436,3 +436,23 @@ button.btn { font: inherit; font-weight: 600; cursor: pointer; }
   .board td, .board th { padding-inline: 0.4rem; }
   .board .rank { width: 1.6rem; }
 }
+
+/* Crystal ball: a fortune card per racer */
+.predict { grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr)); gap: 0.9rem; }
+.fc { display: grid; gap: 0.55rem; align-content: start; padding: 1.1rem 1.2rem; border: 1px solid var(--line); border-radius: 16px; background: radial-gradient(14rem 8rem at 100% 0%, rgb(177 140 255 / 0.16), transparent 70%), var(--surface); min-width: 0; }
+.fc p { margin: 0; }
+.fc-head { display: flex; align-items: center; gap: 0.7rem; }
+.fc-head b { display: block; }
+.fc-head .nick { display: block; font-size: 0.82rem; color: var(--magenta); }
+.fc-big { font-size: 1.05rem; line-height: 1.4; }
+.fc-big strong { color: var(--star); font-weight: 700; white-space: nowrap; }
+.fc-bar { height: 0.55rem; border-radius: 999px; background: var(--surface-solid); border: 1px solid var(--line); overflow: hidden; }
+.fc-bar span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--violet), var(--magenta)); }
+.fc-sub { display: flex; justify-content: space-between; gap: 0.6rem; font-size: 0.8rem; color: var(--muted); }
+.fc-sub span:first-child, .fc-sub span:last-child { font-family: var(--mono); }
+.fc-sub span:nth-child(2) { text-align: center; }
+.fc-pace { font-size: 0.86rem; color: var(--muted); }
+.fc-day { font-size: 0.9rem; padding-top: 0.55rem; border-top: 1px dashed var(--line); }
+.fc-day span { color: var(--muted); font-size: 0.84rem; }
+.fc-cloudy .fc-big { color: var(--muted); font-style: italic; }
+.fc-cloudy .fc-sub { display: block; }

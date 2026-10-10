@@ -599,6 +599,8 @@ jobs:
   );
 
   // ---------- crystal ball ----------
+  // One fortune card per racer, in plain sentences: when they cross their next
+  // 10k milestone, and (if they gave a date) roughly where they'll be on submission day.
   function renderPredict() {
     const total = racers.reduce((s, r) => s + r.words, 0);
     const groupRate = racers.reduce((s, r) => s + r.rate, 0);
@@ -606,35 +608,36 @@ jobs:
     const gNext = (Math.floor(total / gStep) + 1) * gStep;
     const gEta = groupRate > 0 ? iso(new Date(+toDate(TODAY) + Math.ceil((gNext - total) / groupRate) * DAY)) : null;
     const nextUp = racers.filter((r) => r.milestoneEta).sort((a, b) => a.milestoneEta.localeCompare(b.milestoneEta))[0];
-    const withProj = racers.filter((r) => r.proj);
     const bits = [];
-    if (gEta) bits.push(stat(nice(gEta, longDate), `Group passes ${k(gNext)}`, `at ${n(groupRate)} words a day between us`));
-    if (nextUp) bits.push(stat(nice(nextUp.milestoneEta, longDate), "Next milestone", `${nextUp.name} reaches ${k(nextUp.nextMilestone)}`));
-    if (withProj.length) bits.push(stat(`~${k(withProj.reduce((s, r) => s + r.proj.mid, 0))}`, "Submitted words", `if all ${withProj.length} with a date keep this pace`));
+    if (gEta) bits.push(stat(nice(gEta), `Together we pass ${k(gNext)}`, `${inDays(gEta)}, at ${n(groupRate)} words a day between us`));
+    if (nextUp) bits.push(stat(nice(nextUp.milestoneEta), "Next milestone", `${nextUp.name} reaches ${k(nextUp.nextMilestone)} words ${inDays(nextUp.milestoneEta)}`));
     $("predict-headline").innerHTML = bits.join("");
 
-    const field = sorted("words");
-    const top = Math.max(1, ...field.map((r) => (r.proj ? r.proj.hi : r.words)));
-    const step = niceStep(top / 5), end = Math.ceil(top / step) * step;
-    const X = (v) => Math.min(100, (100 * v) / end);
-    let axis = "";
-    for (let v = 0; v <= end; v += step) axis += `<span class="pm" style="left:${X(v)}%">${k(v)}</span>`;
-    const trail = (from, to) => `<span class="p-trail" style="left:${X(from)}%;width:${Math.max(0, X(to) - X(from))}%"></span>`;
-    const rows = field.map((r) => {
-      let lane = `<span class="p-now" style="width:${X(r.words)}%"></span><span class="p-today" style="left:${X(r.words)}%"></span>`, verdict;
-      if (r.proj) {
-        lane += `<span class="p-band" style="left:${X(r.proj.lo)}%;width:${Math.max(0.8, X(r.proj.hi) - X(r.proj.lo))}%"></span>${trail(r.words, r.proj.mid)}<span class="p-dot" style="left:${X(r.proj.mid)}%" title="${esc(r.name)}: about ${n(r.proj.mid)} words on ${nice(r.deadline, longDate)}">${avatar(r, 26)}</span>`;
-        verdict = `<span class="p-when">~${n(r.proj.mid)}</span><span class="sub">by ${nice(r.deadline, longDate)}</span>`;
-      } else if (r.milestoneEta) {
-        lane += `${trail(r.words, r.nextMilestone)}<span class="p-dot" style="left:${X(r.nextMilestone)}%" title="${esc(r.name)}: ${n(r.nextMilestone)} words around ${nice(r.milestoneEta, longDate)}">${avatar(r, 26)}</span>`;
-        verdict = `<span class="p-when">${k(r.nextMilestone)} by ${nice(r.milestoneEta)}</span><span class="sub">next milestone</span>`;
-      } else {
-        lane += `<span class="p-dot" style="left:${X(r.words)}%">${avatar(r, 26)}</span>`;
-        verdict = `<span class="sub">No pace yet. A few days of writing and the crystal ball will speak.</span>`;
+    const step = DATA.race.milestone || 10000;
+    const order = [...racers].sort((a, b) => (a.milestoneEta || "9999").localeCompare(b.milestoneEta || "9999") || b.words - a.words);
+    $("predict").innerHTML = order.map((r) => {
+      const head = `<div class="fc-head">${avatar(r, 34)}<div><b>${esc(r.name)}</b>${r.nickname ? `<span class="nick">${esc(r.nickname)}</span>` : ""}</div></div>`;
+      if (!r.milestoneEta) {
+        return `<article class="fc fc-cloudy">${head}<p class="fc-big">The crystal ball is still cloudy.</p><p class="fc-sub">Log a few days of writing and it will make a prediction.</p></article>`;
       }
-      return `<div class="p-row"><span class="p-name">${esc(r.name)}</span><div class="p-lane">${lane}</div><div class="p-verdict">${verdict}</div></div>`;
-    });
-    $("predict").innerHTML = `<div class="p-key"><span><i class="k-now"></i>Written so far</span><span><i class="k-trail"></i>Predicted words still to come</span><span><i class="k-band"></i>Likely range on submission day</span><span>${SKIN === "collider" ? "⚛️" : "🧑‍🚀"} Where they'll be: on submission day, or at their next milestone if no date</span></div><div class="p-row p-axis"><span></span><div class="p-lane">${axis}</div><span></span></div>${rows.join("")}`;
+      const from = r.nextMilestone - step;
+      const done = Math.max(0, Math.min(100, (100 * (r.words - from)) / step));
+      let day = "";
+      if (r.proj) {
+        const spread = r.proj.hi - r.proj.lo > 0.1 * r.proj.mid;
+        day = `<p class="fc-day">📅 On submission day, ${nice(r.deadline, longDate)}: about <strong>${k(Math.round(r.proj.mid / 1000) * 1000)} words</strong>${spread ? ` <span>(anywhere from ${k(Math.round(r.proj.lo / 1000) * 1000)} to ${k(Math.round(r.proj.hi / 1000) * 1000)}, depending on whether this week's pace keeps up)</span>` : ""}.</p>`;
+      }
+      return `<article class="fc">${head}
+        <p class="fc-big">Reaches <strong>${n(r.nextMilestone)} words</strong> around <strong>${nice(r.milestoneEta)}</strong></p>
+        <div class="fc-bar" role="img" aria-label="${n(r.words)} of ${n(r.nextMilestone)} words"><span style="width:${done}%"></span></div>
+        <p class="fc-sub"><span>${k(from)}</span><span>${n(r.nextMilestone - r.words)} words to go, ${inDays(r.milestoneEta)}</span><span>${k(r.nextMilestone)}</span></p>
+        <p class="fc-pace">Writing about ${n(r.rate)} words a day lately.</p>
+        ${day}</article>`;
+    }).join("");
+  }
+  function inDays(d) {
+    const days = Math.round((toDate(d) - toDate(TODAY)) / DAY);
+    return days <= 0 ? "today" : days === 1 ? "tomorrow" : days < 14 ? `in ${days} days` : days < 70 ? `in ${Math.round(days / 7)} weeks` : `in ${Math.round(days / 30.4)} months`;
   }
   function niceStep(raw) {
     const p = 10 ** Math.floor(Math.log10(raw));
