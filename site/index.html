@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Chakra+Petch:wght@500;700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
-<link rel="stylesheet" href="style.css?v=7">
+<link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
 <canvas class="stars" id="stars" aria-hidden="true"></canvas>
@@ -56,12 +56,16 @@
   <section aria-labelledby="board-h">
     <div class="section-head">
       <h2 id="board-h">Leaderboard</h2>
-      <div class="seg" role="group" aria-label="Sort leaderboard by">
-        <button type="button" id="sort-words" data-sort="words" aria-pressed="true">Words</button>
-        <button type="button" id="sort-week" data-sort="week" aria-pressed="false">This week</button>
-        <button type="button" id="sort-streak" data-sort="streak" aria-pressed="false">Streak</button>
+      <div class="rank-by">
+        <span class="rank-by-label" id="rank-by-label">Rank by</span>
+        <div class="seg" role="group" aria-labelledby="rank-by-label">
+          <button type="button" id="sort-words" data-sort="words" aria-pressed="true">Total words</button>
+          <button type="button" id="sort-week" data-sort="week" aria-pressed="false">Words this week</button>
+          <button type="button" id="sort-streak" data-sort="streak" aria-pressed="false">Streak</button>
+        </div>
       </div>
     </div>
+    <p class="hint board-why" id="board-why" aria-live="polite"></p>
     <div class="table-scroll"><table class="board" id="board"></table></div>
   </section>
 
@@ -213,6 +217,6 @@
 </div>
 
 <div class="tip" id="tip" hidden></div>
-<script src="app.js?v=7"></script>
+<script src="app.js?v=8"></script>
 </body>
 </html>

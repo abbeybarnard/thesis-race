@@ -570,18 +570,25 @@ jobs:
   }
 
   // ---------- leaderboard ----------
+  const BOARD_WHY = {
+    words: "Who has written the most so far: everything in their thesis right now.",
+    week: "Who added the most words in the last seven days, so a big week can beat a long thesis.",
+    streak: "Who has added words the most days in a row, however few.",
+  };
   function renderBoard() {
     const cat = DATA.race.caterpillar_words;
+    const on = (key) => (key === sortKey ? " on" : "");
+    $("board-why").textContent = BOARD_WHY[sortKey];
     const rows = sorted(sortKey).map((r, i) => `<tr>
         <td class="rank">${i + 1}</td>
         <td><div class="who"><span class="emo">${avatar(r, 30)}</span><span><span class="nm">${esc(r.name)}</span>${r.nickname ? `<span class="nick">${esc(r.nickname)}</span>` : ""}${r.note ? `<span class="note">“${esc(r.note)}”</span>` : ""}</span></div></td>
-        <td class="r words">${n(r.words)}<span class="sub">${n(r.words / cat)} caterpillars</span></td>
-        <td class="r"><span class="delta ${r.week > 0 ? "up" : r.week < 0 ? "down" : ""}">${signed(r.week)}</span></td>
-        <td class="r">${r.streak ? `${r.streak} day${r.streak > 1 ? "s" : ""}${r.streak >= 5 ? " 🔥" : ""}` : "–"}</td>
+        <td class="r words stat-col${on("words")}">${n(r.words)}<span class="sub">${n(r.words / cat)} caterpillars</span></td>
+        <td class="r stat-col${on("week")}"><span class="delta ${r.week > 0 ? "up" : r.week < 0 ? "down" : ""}">${signed(r.week)}</span><span class="sub">words</span></td>
+        <td class="r stat-col${on("streak")}">${r.streak ? `${r.streak} day${r.streak > 1 ? "s" : ""}${r.streak >= 5 ? " 🔥" : ""}<span class="sub">in a row</span>` : "–"}</td>
         <td class="r hide-sm">${r.rate ? `${n(r.rate)}<span class="sub">words a day</span>` : "–"}</td>
         <td class="hide-sm">${r.milestoneEta ? `${k(r.nextMilestone)}<span class="sub">around ${nice(r.milestoneEta, longDate)}</span>` : `<span class="sub">needs a pace first</span>`}</td>
       </tr>`).join("");
-    $("board").innerHTML = `<thead><tr><th></th><th>Racer</th><th class="r">Words</th><th class="r">This week</th><th class="r">Streak</th><th class="r hide-sm">Pace</th><th class="hide-sm">Next milestone</th></tr></thead><tbody>${rows}</tbody>`;
+    $("board").innerHTML = `<thead><tr><th></th><th>Racer</th><th class="r stat-col${on("words")}">Total words</th><th class="r stat-col${on("week")}">This week</th><th class="r stat-col${on("streak")}">Streak</th><th class="r hide-sm">Pace</th><th class="hide-sm">Next milestone</th></tr></thead><tbody>${rows}</tbody>`;
   }
   document.querySelectorAll("[data-sort]").forEach((b) =>
     b.addEventListener("click", () => {

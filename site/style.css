@@ -420,3 +420,19 @@ button.btn { font: inherit; font-weight: 600; cursor: pointer; }
 .patch-opt { font-size: 1.35rem; line-height: 1; padding: 0.35rem 0; background: none; border: 0; border-radius: 8px; cursor: pointer; }
 .patch-opt:hover, .patch-opt:focus-visible { background: rgb(177 140 255 / 0.25); }
 .patch-hint { grid-column: 1 / -1; margin: 0.3rem 0 0; font-size: 0.8rem; color: var(--muted); letter-spacing: 0; text-transform: none; font-weight: 400; }
+
+/* Leaderboard: say what it's ranked by, and light up that column */
+.rank-by { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.rank-by-label { font-size: 0.74rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.board-why { margin: -0.4rem 0 1rem; }
+.board th.on { color: var(--star); border-bottom: 2px solid var(--star); }
+.board th.on::after { content: " ↓"; }
+.board td.on { background: rgb(255 213 107 / 0.07); }
+.board td.on, .board td.on .delta { font-weight: 700; }
+/* On phones, show just the column the board is ranked by, so it never scrolls off-screen. */
+@media (max-width: 560px) {
+  .board .stat-col:not(.on) { display: none; }
+  .board .who { min-width: 0; }
+  .board td, .board th { padding-inline: 0.4rem; }
+  .board .rank { width: 1.6rem; }
+}
