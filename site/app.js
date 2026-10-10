@@ -299,7 +299,7 @@ jobs:
     const flames = jet ? `<g class="flame">${side(-1)}${side(1)}</g>` : "";
     return `${flames}<rect x="${jet ? -15 : -13}" y="2" width="${jet ? 30 : 26}" height="15" rx="4.5" fill="${shade}" ${o}/>${jet ? nozzle(-1) + nozzle(1) : ""}
       <rect x="-8.5" y="16" width="7" height="10" rx="3" fill="${shade}" ${o}/><rect x="1.5" y="16" width="7" height="10" rx="3" fill="${shade}" ${o}/>
-      ${arm("M-7 5 Q-15 6 -17 12", suit, shade)}${arm("M7 6 Q14 5 15.5 -3", suit, shade)}
+      ${arm("M-7 5 Q-15 6 -17 12", suit, shade)}${arm("M7 5 Q15 6 17 12", suit, shade)}
       <rect x="-10" y="1" width="20" height="19" rx="7" fill="${suit}" ${o}/>
       <circle cx="0" cy="10" r="5" fill="#fff" ${o}/><text x="0" y="12.6" font-size="7" text-anchor="middle">${esc(k.patch)}</text>
       ${topper(k.top)}
