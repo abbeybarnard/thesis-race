@@ -352,6 +352,8 @@ jobs:
     builderState = () => ({ ...state, patch: $("b-patch").value.trim() || "⭐" });
     $("builder-random").addEventListener("click", () => {
       for (const part in LABELS) { const keys = Object.keys(LABELS[part]); state[part] = keys[Math.floor(Math.random() * keys.length)]; }
+      const others = PATCHES.filter((e) => e !== $("b-patch").value.trim());
+      $("b-patch").value = others[Math.floor(Math.random() * others.length)];
       draw();
     });
     draw();
