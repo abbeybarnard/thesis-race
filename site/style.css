@@ -255,7 +255,8 @@ h1 .kicker {
 .builder-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 9.5rem), 1fr)); gap: 0.8rem 1rem; margin-bottom: 1rem; }
 .builder-grid label { display: grid; gap: 0.3rem; font-size: 0.74rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
 .builder-grid select, .builder-grid input { font: 500 0.95rem var(--body); letter-spacing: 0; text-transform: none; color: var(--ink); background: var(--surface-solid); border: 1px solid var(--line); border-radius: 10px; padding: 0.5rem 0.6rem; min-width: 0; }
-button.btn { background: none; font: inherit; font-weight: 600; cursor: pointer; }
+button.btn:not(.btn-primary) { background: none; }
+button.btn { font: inherit; font-weight: 600; cursor: pointer; }
 @media (max-width: 560px) { .builder { grid-template-columns: 1fr; } .builder-preview { max-width: 10rem; margin-inline: auto; } }
 
 /* Crystal ball: today's count, the predicted trail and the astronaut's landing spot */
@@ -366,3 +367,47 @@ button.btn { background: none; font: inherit; font-weight: 600; cursor: pointer;
   .dv, .dc { font-size: 1.75rem; }
   .dl { font-size: 0.56rem; letter-spacing: 0.14em; }
 }
+
+/* Join form: fill everything in here, press one button on GitHub */
+.join-form { display: grid; gap: 1rem; }
+.j-card { padding: 1.3rem 1.4rem; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); min-width: 0; }
+.j-card:first-child { background: radial-gradient(18rem 14rem at 12% 60%, rgb(177 140 255 / 0.22), transparent 70%), var(--surface); }
+:root[data-skin="collider"] .j-card:first-child { background: radial-gradient(18rem 14rem at 12% 60%, rgb(79 209 255 / 0.18), transparent 70%), var(--surface); }
+.j-card .builder { padding: 0; margin: 0; border: 0; background: none; }
+.j-h { margin: 0 0 1rem; font: 700 1.05rem var(--display); display: flex; align-items: center; gap: 0.6rem; }
+.j-n { display: inline-grid; place-items: center; width: 1.8rem; height: 1.8rem; border-radius: 50%; background: var(--star); color: #170b33; font-size: 0.9rem; flex: none; }
+.j-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 13rem), 1fr)); gap: 1rem 1.2rem; }
+.j-wide { grid-column: 1 / -1; }
+.j-grid label, .log-form label { display: grid; gap: 0.35rem; align-content: start; font-size: 0.74rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-weight: 600; min-width: 0; }
+.j-grid input, .log-form input { font: 500 1rem var(--body); letter-spacing: 0; text-transform: none; color: var(--ink); background: var(--surface-solid); border: 1px solid var(--line); border-radius: 10px; padding: 0.6rem 0.7rem; min-width: 0; color-scheme: dark; }
+.j-grid input:focus, .log-form input:focus { border-color: var(--violet); outline: none; box-shadow: 0 0 0 3px rgb(177 140 255 / 0.3); }
+.j-grid input[aria-invalid="true"] { border-color: var(--warn); }
+.j-grid small { font-size: 0.82rem; font-weight: 400; letter-spacing: 0; text-transform: none; line-height: 1.4; }
+.opt { font-weight: 400; letter-spacing: 0; text-transform: none; opacity: 0.8; }
+.j-choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); gap: 0.7rem; }
+.j-choice { position: relative; display: grid; gap: 0.25rem; padding: 0.9rem 1rem 0.9rem 2.6rem; border: 1.5px solid var(--line); border-radius: 14px; cursor: pointer; background: var(--surface-solid); }
+.j-choice input { position: absolute; left: 1rem; top: 1.05rem; accent-color: var(--magenta); margin: 0; }
+.j-choice span { font-size: 0.88rem; color: var(--muted); }
+.j-choice:has(input:checked) { border-color: var(--magenta); box-shadow: 0 0 18px rgb(255 95 176 / 0.25); }
+.j-send { display: grid; justify-items: start; gap: 0.8rem; padding: 0.4rem 0.2rem 0.6rem; }
+.btn.btn-big { font-size: 1.1rem; padding: 0.85rem 1.8rem; cursor: pointer; }
+.btn-small { cursor: pointer; font: 600 0.9rem var(--body); }
+.j-after { margin: 0; padding-left: 1.2rem; color: var(--muted); font-size: 0.92rem; display: grid; gap: 0.2rem; }
+.j-after strong { color: var(--good); }
+.j-error, .j-ok { margin: 0; padding: 0.6rem 0.9rem; border-radius: 10px; font-size: 0.92rem; }
+.j-error { border: 1px solid var(--warn); color: var(--warn); }
+.j-ok { border: 1px solid var(--good); color: var(--ink); }
+.j-setup { margin-top: 1rem; }
+.panel-lede { margin: 0 0 1rem; color: var(--muted); }
+.gh-steps { margin-top: 1.4rem; }
+.gh-steps strong { color: var(--ink); }
+.g-link[aria-disabled] { opacity: 0.55; text-decoration-style: dashed; }
+.copy { cursor: copy; padding: 0.1rem 0.35rem; border-radius: 5px; background: var(--surface-solid); border: 1px dashed var(--violet); }
+.copy.copied { border-color: var(--good); color: var(--good); }
+.copy.copied::after { content: " ✓ copied"; font-family: var(--body); }
+.log-form { display: grid; grid-template-columns: minmax(9rem, 13rem) minmax(0, 1fr) auto; gap: 1rem; align-items: end; }
+.log-form .btn { cursor: pointer; }
+.log-form .j-error, .log-form .j-ok { grid-column: 1 / -1; }
+@media (max-width: 640px) { .log-form { grid-template-columns: 1fr; } .j-card { padding: 1.1rem; } }
+.copy-block .copy { background: none; border: 0; padding: 0; }
+#action-yml { cursor: copy; }

@@ -27,7 +27,7 @@
     <p class="lede" id="lede">Everyone's word count, live from orbit. Only the numbers are shared, never the theses.</p>
     <div class="actions">
       <a class="btn btn-primary" id="join-btn" href="#join">Join the race</a>
-      <a class="btn" id="log-btn" href="#join">Log my words</a>
+      <a class="btn" id="log-btn" href="#log">Log my words</a>
     </div>
   </header>
 
@@ -96,71 +96,111 @@
   </section>
 
   <section class="join" id="join" aria-labelledby="join-h">
-    <div class="section-head"><h2 id="join-h">Join in two minutes</h2></div>
-    <div class="builder">
-      <div class="builder-preview" id="builder-preview" aria-hidden="true"></div>
-      <div class="builder-controls">
-        <h3 class="builder-h" id="builder-h">Design your astronaut</h3>
-        <div class="builder-grid">
-          <label for="b-suit">Colour<select id="b-suit" data-part="suit"></select></label>
-          <label class="astro-only" for="b-visor">Visor<select id="b-visor" data-part="visor"></select></label>
-          <label class="astro-only" for="b-top">Helmet topper<select id="b-top" data-part="top"></select></label>
-          <label class="astro-only" for="b-pack">Backpack<select id="b-pack" data-part="pack"></select></label>
-          <label for="b-patch">Mission patch<input id="b-patch" maxlength="8" value="🛸"></label>
-        </div>
-        <div class="actions">
-          <a class="btn btn-primary" id="builder-join" href="#">Join with this astronaut</a>
-          <button type="button" class="btn" id="builder-random">Surprise me</button>
+    <div class="section-head">
+      <h2 id="join-h">Join in two minutes</h2>
+      <p class="hint">Fill this in here, then GitHub opens with all of it already typed in. You only press one button there.</p>
+    </div>
+
+    <form class="join-form" id="join-form" novalidate>
+      <div class="j-card">
+        <h3 class="j-h"><span class="j-n">1</span> <span id="builder-h">Design your astronaut</span></h3>
+        <div class="builder">
+          <div class="builder-preview" id="builder-preview" aria-hidden="true"></div>
+          <div class="builder-controls">
+            <div class="builder-grid">
+              <label for="b-suit">Colour<select id="b-suit" data-part="suit"></select></label>
+              <label class="astro-only" for="b-visor">Visor<select id="b-visor" data-part="visor"></select></label>
+              <label class="astro-only" for="b-top">Helmet topper<select id="b-top" data-part="top"></select></label>
+              <label class="astro-only" for="b-pack">Backpack<select id="b-pack" data-part="pack"></select></label>
+              <label for="b-patch">Mission patch emoji<input id="b-patch" maxlength="8" value="🛸"></label>
+            </div>
+            <button type="button" class="btn btn-small" id="builder-random">Surprise me</button>
+          </div>
         </div>
       </div>
-    </div>
-    <p class="join-lede">You'll need a GitHub account. Pick how you write:</p>
-    <div class="tabs" role="tablist" aria-label="How you write">
-      <button type="button" role="tab" id="tab-overleaf" aria-controls="panel-overleaf" aria-selected="true">Overleaf</button>
-      <button type="button" role="tab" id="tab-local" aria-controls="panel-local" aria-selected="false">VS Code or local LaTeX</button>
-      <button type="button" role="tab" id="tab-github" aria-controls="panel-github" aria-selected="false">Thesis on GitHub</button>
-    </div>
 
-    <div class="panel" role="tabpanel" id="panel-overleaf" aria-labelledby="tab-overleaf">
-      <ol class="steps">
-        <li><span>Fill in the <a class="join-link" href="#">Join the race</a> form and choose <em>By hand</em>. Add your thesis title if you'd like a silly racing nickname.</span></li>
-        <li><span>Whenever you like, open <strong>Menu → Word Count</strong> in Overleaf and copy the total.</span></li>
-        <li><span>Paste it into the <a class="log-link" href="#">Log my words</a> form. Bookmark that link; it takes ten seconds.</span></li>
-      </ol>
-      <p class="aside">Using Overleaf's GitHub sync? Then the <em>Thesis on GitHub</em> route makes it fully automatic.</p>
-    </div>
+      <div class="j-card">
+        <h3 class="j-h"><span class="j-n">2</span> About you</h3>
+        <div class="j-grid">
+          <label for="j-name">Display name<input id="j-name" autocomplete="nickname" placeholder="Jasmine" required></label>
+          <label for="j-start"><span>Words so far <span class="opt">optional</span></span><input id="j-start" type="number" min="0" inputmode="numeric" placeholder="2300"></label>
+          <label for="j-deadline"><span>Submission date <span class="opt">optional</span></span><input id="j-deadline" type="date"></label>
+          <label class="j-wide" for="j-thesis"><span>Thesis title <span class="opt">optional</span></span><input id="j-thesis" placeholder="Muons, millicharges and Majorana neutrinos">
+            <small>Only used to pick your silly nickname. It's never saved or shown here, but the GitHub form is public, so a vague working title is fine.</small></label>
+        </div>
+      </div>
 
-    <div class="panel" role="tabpanel" id="panel-local" aria-labelledby="tab-local" hidden>
-      <ol class="steps">
-        <li><span>Fill in the <a class="join-link" href="#">Join the race</a> form and choose <em>Automatic</em>.</span></li>
-        <li><span>Install the <a href="https://cli.github.com">GitHub CLI</a> and let it make gists:</span>
-          <pre><code>gh auth login
-gh auth refresh -s gist</code></pre></li>
-        <li><span>From your thesis folder, download the reporter and run it once:</span>
-          <pre><code id="curl-cmd">curl -fsSLO https://raw.githubusercontent.com/OWNER/REPO/main/tools/thesis-race.sh
-bash thesis-race.sh main.tex --hook</code></pre></li>
-      </ol>
-      <p class="aside"><code>--hook</code> reports again after every git commit. Without git, run <code>bash thesis-race.sh main.tex</code> whenever you like, or add it as a VS Code task. It counts with <code>texcount</code> on your machine and sends only the total.</p>
-    </div>
+      <div class="j-card">
+        <h3 class="j-h"><span class="j-n">3</span> How do you write?</h3>
+        <div class="j-choices" role="radiogroup" aria-label="How you write">
+          <label class="j-choice"><input type="radio" name="j-method" value="overleaf" checked><b>Overleaf</b><span>Paste your word count in whenever you like. Ten seconds each time.</span></label>
+          <label class="j-choice"><input type="radio" name="j-method" value="local"><b>VS Code or local LaTeX</b><span>A small script reports your count after each commit.</span></label>
+          <label class="j-choice"><input type="radio" name="j-method" value="github"><b>Thesis on GitHub</b><span>Your thesis repo reports its own count every time you push.</span></label>
+        </div>
+      </div>
 
-    <div class="panel" role="tabpanel" id="panel-github" aria-labelledby="tab-github" hidden>
-      <ol class="steps">
-        <li><span>Fill in the <a class="join-link" href="#">Join the race</a> form and choose <em>Automatic</em>.</span></li>
-        <li><span>Make a <a href="https://github.com/settings/tokens/new?scopes=gist&amp;description=Thesis%20Race">token with only the <em>gist</em> box ticked</a>, and save it in your thesis repo as a secret called <code>THESIS_RACE_TOKEN</code>.</span></li>
-        <li><span>Add this file to your thesis repo as <code>.github/workflows/thesis-race.yml</code>:</span>
-          <pre><code id="action-yml">on: { push: {}, schedule: [{ cron: "0 22 * * *" }] }
-jobs:
-  count:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: OWNER/REPO@main
-        with:
-          main: main.tex
-          token: ${{ secrets.THESIS_RACE_TOKEN }}</code></pre></li>
-      </ol>
-      <p class="aside">Your repo can stay private. The count runs inside your own repo and only the number leaves it.</p>
+      <div class="j-send">
+        <button type="submit" class="btn btn-primary btn-big" id="j-submit">Send my entry</button>
+        <p class="j-error" id="j-error" role="alert" hidden></p>
+        <ol class="j-after">
+          <li>GitHub opens in a new tab. Sign in, or make an account if you don't have one.</li>
+          <li>Everything is already filled in. Scroll down and press the green <strong>Create</strong> button.</li>
+          <li>Abbey approves new racers, and you appear on the track a few minutes after that.</li>
+        </ol>
+      </div>
+    </form>
+
+    <div class="j-card j-setup" id="setup">
+      <h3 class="j-h"><span class="j-n">4</span> <span id="setup-h">Keep your count up to date</span></h3>
+
+      <div class="panel" id="panel-overleaf">
+        <ol class="steps">
+          <li><span>In Overleaf, open <strong>Menu → Word Count</strong> and note the total.</span></li>
+          <li><span>Type it into <a href="#log">Log my words</a> below and press the button. Bookmark this page so it's always to hand.</span></li>
+        </ol>
+        <p class="aside">Do you sync Overleaf to GitHub (<strong>Menu → GitHub</strong>)? Choose <em>Thesis on GitHub</em> above instead and it becomes automatic. Your count updates whenever you press <em>Push to GitHub</em> in Overleaf.</p>
+      </div>
+
+      <div class="panel" id="panel-local" hidden>
+        <ol class="steps">
+          <li><span>In VS Code, open your thesis folder and then a terminal (<strong>Terminal → New Terminal</strong>).</span></li>
+          <li><span>Copy this (click the box) and paste it into the terminal, then press Enter:</span>
+            <pre class="copy-block"><code id="curl-cmd" class="copy">curl -fsSL https://raw.githubusercontent.com/OWNER/REPO/main/tools/setup.sh | bash</code></pre></li>
+          <li><span>If a browser page opens asking you to sign in to GitHub, follow it. That's it.</span></li>
+        </ol>
+        <p class="aside">It finds your main <code>.tex</code> file, counts it on your own computer with <code>texcount</code> and sends only the total. From then on it reports by itself after every git commit, or whenever you open the folder in VS Code if you don't use git. It needs the <a href="https://cli.github.com">GitHub CLI</a> and installs it for you if you have Homebrew.</p>
+      </div>
+
+      <div class="panel" id="panel-github" hidden>
+        <p class="panel-lede">Tell us where your thesis lives and these steps fill in your own links. Use the same GitHub account you joined with.</p>
+        <div class="j-grid">
+          <label for="g-repo">Your thesis repository<input id="g-repo" placeholder="jasmine/thesis" autocapitalize="off" spellcheck="false"><small>Its address, like <code>github.com/jasmine/thesis</code>. Private is fine.</small></label>
+          <label for="g-main">Main .tex file<input id="g-main" value="main.tex" autocapitalize="off" spellcheck="false"><small>The file with <code>\begin{document}</code>, including any folder, like <code>thesis/main.tex</code>.</small></label>
+          <label for="g-branch">Branch<input id="g-branch" value="main" autocapitalize="off" spellcheck="false"><small>Usually <code>main</code>. Overleaf-synced repos use <code>master</code>.</small></label>
+        </div>
+        <ol class="steps gh-steps">
+          <li><span><strong>Make a key that can only post your count.</strong> <a href="https://github.com/settings/tokens/new?scopes=gist&amp;description=Thesis%20Race" target="_blank" rel="noopener">Open the token page</a>. The <em>gist</em> box is already ticked, so leave everything else alone. Set <em>Expiration</em> to a date after you submit, press <em>Generate token</em> and copy the key it shows (it starts <code>ghp_</code>).</span></li>
+          <li><span><strong>Give the key to your thesis repo.</strong> <a class="g-link" data-g="secret" href="#" target="_blank" rel="noopener">Open your repo's secrets page</a>. Name it <code class="copy" data-copy="THESIS_RACE_TOKEN">THESIS_RACE_TOKEN</code>, paste the key under <em>Secret</em> and press <em>Add secret</em>.</span></li>
+          <li><span><strong>Add the race file.</strong> <a class="g-link" data-g="file" href="#" target="_blank" rel="noopener">Open the new file, already written for you</a>, then press <em>Commit changes</em>. This is what it contains:</span>
+            <pre><code id="action-yml"></code></pre></li>
+          <li><span><strong>Check it worked.</strong> <a class="g-link" data-g="actions" href="#" target="_blank" rel="noopener">Open your repo's Actions tab</a>. A green tick next to <em>Thesis Race</em> means your count was sent. The leaderboard picks it up within three hours.</span></li>
+        </ol>
+        <p class="aside">Only the number leaves your repo. The count runs inside your own repo's GitHub Actions, and the key can't read or change any of your code.</p>
+      </div>
     </div>
+  </section>
+
+  <section class="log" id="log" aria-labelledby="log-h">
+    <div class="section-head">
+      <h2 id="log-h">Log my words</h2>
+      <p class="hint">For anyone counting by hand. GitHub opens with your number filled in; press <strong>Create</strong>.</p>
+    </div>
+    <form class="j-card log-form" id="log-form" novalidate>
+      <label for="l-words">Total words now<input id="l-words" type="number" min="0" inputmode="numeric" placeholder="23410" required></label>
+      <label for="l-note"><span>Note <span class="opt">optional, public</span></span><input id="l-note" maxlength="140" placeholder="Finally finished the detector chapter"></label>
+      <button type="submit" class="btn btn-primary">Log it</button>
+      <p class="j-error" id="l-error" role="alert" hidden></p>
+    </form>
   </section>
 
   <footer class="foot">

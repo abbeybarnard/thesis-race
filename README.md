@@ -15,33 +15,35 @@ You'll need a GitHub account.
 | **VS Code or any local LaTeX** | A small script counts with `texcount` and reports just the number. Set it up once and forget it. |
 | **A thesis repo on GitHub** (including Overleaf's GitHub sync) | A GitHub Action in your own repo reports the count on every push. Your repo can stay private. |
 
-**Step 1 for everyone:** fill in the [Join the race](../../issues/new?template=join.yml) form. Abbey approves new racers, and the bot replies on your form as soon as you're on the leaderboard. Add your thesis title if you'd like a silly racing nickname; the title itself is never saved.
+**Step 1 for everyone:** use the *Join in two minutes* form on the [race website](https://abbeybarnard.github.io/thesis-race/#join). It opens GitHub with everything filled in, so you only press *Create*. (Or fill in the [Join the race](../../issues/new?template=join.yml) form here directly.) Abbey approves new racers, and the bot replies on your form as soon as you're on the leaderboard. Add your thesis title if you'd like a silly racing nickname; the title itself is never saved.
 
 ### VS Code or local LaTeX
 
+From your thesis folder, run:
+
 ```sh
-gh auth login && gh auth refresh -s gist      # GitHub CLI, once
-curl -fsSLO https://raw.githubusercontent.com/abbeybarnard/thesis-race/main/tools/thesis-race.sh
-bash thesis-race.sh main.tex --hook           # report now, and after every git commit
+curl -fsSL https://raw.githubusercontent.com/abbeybarnard/thesis-race/main/tools/setup.sh | bash
 ```
 
-Not using git? Run `bash thesis-race.sh main.tex` whenever you like, or add it as a VS Code task:
+It finds your main `.tex` file (or name it: `... | bash -s -- thesis/main.tex`), signs you in to the GitHub CLI with the `gist` permission if needed, reports once, and then reports automatically after every git commit. Without git, it adds a VS Code task that reports whenever you open the folder. The reporter lives in `~/.thesis-race/`, outside your thesis.
 
-```json
-{ "label": "Thesis Race", "type": "shell", "command": "bash thesis-race.sh main.tex" }
-```
-
-Want to see your count without sending it? `bash thesis-race.sh main.tex --dry-run`.
+Want to see your count without sending it? `bash ~/.thesis-race/thesis-race.sh main.tex --dry-run`.
 
 The script keeps a public gist on your account with one file, `thesis-race.json`, holding `{"words": 23410, "updated": "…"}`. The leaderboard reads it every three hours.
 
 ### Thesis on GitHub
 
+The race website's *Thesis on GitHub* option builds these links for your own repo, including a ready-written workflow file.
+
 1. Make a [token with only the `gist` scope](https://github.com/settings/tokens/new?scopes=gist&description=Thesis%20Race) and add it to your thesis repo as a secret named `THESIS_RACE_TOKEN` (*Settings → Secrets and variables → Actions*).
 2. Add `.github/workflows/thesis-race.yml` to your thesis repo:
 
 ```yaml
-on: { push: {}, schedule: [{ cron: "0 22 * * *" }] }
+name: Thesis Race
+on:
+  push:
+  workflow_dispatch:
+  schedule: [{ cron: "0 22 * * *" }]
 jobs:
   count:
     runs-on: ubuntu-latest

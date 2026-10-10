@@ -54,7 +54,7 @@
     $("cat").textContent = race.caterpillar_words;
     astroDefs();
     wireLinks(race.repo);
-    builder(race.repo);
+    builder();
 
     racers = data.racers.map((r, i) => stats(r, COLOURS[i % COLOURS.length]));
     renderSummary();
@@ -93,17 +93,128 @@
   }
 
   function wireLinks(repo) {
-    const base = `https://github.com/${repo}`;
-    const join = `${base}/issues/new?template=join.yml`;
-    const log = `${base}/issues/new?template=log.yml`;
-    $("join-btn").href = join;
-    $("log-btn").href = log;
-    document.querySelectorAll(".join-link").forEach((a) => (a.href = join));
-    document.querySelectorAll(".log-link").forEach((a) => (a.href = log));
-    for (const id of ["curl-cmd", "action-yml"]) $(id).textContent = $(id).textContent.replaceAll("OWNER/REPO", repo);
+    $("curl-cmd").textContent = $("curl-cmd").textContent.replaceAll("OWNER/REPO", repo);
+    $("curl-cmd").dataset.copy = $("curl-cmd").textContent;
+    joinForm(repo);
+    logForm(repo);
+    githubHelper(repo);
   }
 
+  // GitHub issue forms take their answers from the URL, keyed by each field's id,
+  // so people fill everything in here and only press Create on GitHub.
+  const issueUrl = (repo, params) => `https://github.com/${repo}/issues/new?${new URLSearchParams(Object.entries(params).filter(([, v]) => v !== "" && v != null))}`;
+  function sendToGitHub(url, errorEl) {
+    const w = window.open(url, "_blank");
+    if (w) w.opener = null;
+    errorEl.hidden = false;
+    errorEl.className = "j-ok";
+    errorEl.innerHTML = w === null
+      ? `Your browser blocked the new tab. <a href="${esc(url)}" target="_blank" rel="noopener">Open GitHub here</a>, then press <strong>Create</strong>.`
+      : `GitHub has opened in a new tab. Press <strong>Create</strong> there to finish. <a href="${esc(url)}" target="_blank" rel="noopener">Didn't open?</a>`;
+  }
+  function fail(errorEl, message, field) {
+    errorEl.hidden = false;
+    errorEl.className = "j-error";
+    errorEl.textContent = message;
+    field.focus();
+  }
 
+  const METHOD = {
+    hand: "By hand (Overleaf, or any editor that shows a word count)",
+    auto: "Automatic (VS Code, local LaTeX, or a GitHub-synced thesis)",
+  };
+  function joinForm(repo) {
+    const method = () => document.querySelector('[name="j-method"]:checked').value;
+    const showPanel = () => {
+      for (const m of ["overleaf", "local", "github"]) $(`panel-${m}`).hidden = m !== method();
+    };
+    document.querySelectorAll('[name="j-method"]').forEach((r) => r.addEventListener("change", showPanel));
+    showPanel();
+    $("join-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const err = $("j-error");
+      const name = $("j-name").value.trim();
+      if (!name) return fail(err, "Add a display name first. A nickname is fine.", $("j-name"));
+      const start = $("j-start").value.trim();
+      if (start && !(Number(start) >= 0)) return fail(err, "Words so far should be a number, like 2300.", $("j-start"));
+      const kit = builderState();
+      sendToGitHub(issueUrl(repo, {
+        template: "join.yml",
+        title: `Join the race: ${name}`,
+        name,
+        suit: LABELS.suit[kit.suit], visor: LABELS.visor[kit.visor], top: LABELS.top[kit.top], pack: LABELS.pack[kit.pack],
+        emoji: kit.patch,
+        thesis: $("j-thesis").value.trim(),
+        deadline: $("j-deadline").value,
+        start: start && String(Math.round(Number(start))),
+        method: method() === "overleaf" ? METHOD.hand : METHOD.auto,
+      }), err);
+    });
+  }
+
+  function logForm(repo) {
+    $("log-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const err = $("l-error");
+      const words = $("l-words").value.trim();
+      if (!words || !(Number(words) >= 0)) return fail(err, "Type your total word count, like 23410.", $("l-words"));
+      sendToGitHub(issueUrl(repo, { template: "log.yml", title: "Log my words", words: String(Math.round(Number(words))), note: $("l-note").value.trim() }), err);
+    });
+  }
+
+  // Turns "github.com/jasmine/thesis" into ready-made links for that repo.
+  function githubHelper(raceRepo) {
+    const yml = (main) => `name: Thesis Race
+on:
+  push:
+  workflow_dispatch:
+  schedule: [{ cron: "0 22 * * *" }]
+jobs:
+  count:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ${raceRepo}@main
+        with:
+          main: ${main}
+          token: \${{ secrets.THESIS_RACE_TOKEN }}
+`;
+    const parse = (v) => {
+      const m = v.trim().replace(/^https?:\/\//, "").replace(/^github\.com\//, "").replace(/\.git$/, "").replace(/\/+$/, "").match(/^([A-Za-z0-9-]+)\/([A-Za-z0-9._-]+)$/);
+      return m ? `${m[1]}/${m[2]}` : null;
+    };
+    const update = () => {
+      const repo = parse($("g-repo").value);
+      const main = $("g-main").value.trim() || "main.tex";
+      const branch = $("g-branch").value.trim() || "main";
+      $("action-yml").textContent = yml(main);
+      const links = repo && {
+        secret: `https://github.com/${repo}/settings/secrets/actions/new`,
+        file: `https://github.com/${repo}/new/${encodeURIComponent(branch)}?${new URLSearchParams({ filename: ".github/workflows/thesis-race.yml", value: yml(main) })}`,
+        actions: `https://github.com/${repo}/actions`,
+      };
+      document.querySelectorAll(".g-link").forEach((a) => {
+        a.href = links ? links[a.dataset.g] : "#g-repo";
+        a.toggleAttribute("aria-disabled", !links);
+        a.target = links ? "_blank" : "";
+      });
+      $("g-repo").setAttribute("aria-invalid", String(!!$("g-repo").value.trim() && !repo));
+    };
+    for (const id of ["g-repo", "g-main", "g-branch"]) $(id).addEventListener("input", update);
+    document.querySelectorAll(".g-link").forEach((a) => a.addEventListener("click", (e) => {
+      if (!a.hasAttribute("aria-disabled")) return;
+      e.preventDefault();
+      $("g-repo").focus();
+      $("g-repo").placeholder = "Type your repository here first, like jasmine/thesis";
+    }));
+    document.querySelectorAll(".copy, #action-yml").forEach((c) => {
+      c.title = "Click to copy";
+      c.addEventListener("click", () => {
+        navigator.clipboard?.writeText(c.dataset.copy || c.textContent).then(() => { c.classList.add("copied"); setTimeout(() => c.classList.remove("copied"), 1200); }, () => {});
+      });
+    });
+    update();
+  }
 
   // ---------- the funding countdown ----------
   let doomEnd = null, doomLine = 0;
@@ -210,7 +321,8 @@
     pack: { classic: "Classic", flames: "Jetpack flames" },
   };
   let redrawBuilder = () => {};
-  function builder(repo) {
+  let builderState = () => ({});
+  function builder() {
     const sel = (part) => document.querySelector(`[data-part="${part}"]`);
     for (const [part, opts] of Object.entries(LABELS)) sel(part).innerHTML = Object.entries(opts).map(([v, l]) => `<option value="${v}">${l}</option>`).join("");
     const state = { suit: "lilac", visor: "rainbow", top: "antenna", pack: "flames" };
@@ -222,14 +334,12 @@
         ? `<svg viewBox="-42 -24 66 48" class="astro particle">${particleBody({ ...state, patch }, true)}</svg>`
         : `<svg viewBox="-30 -38 60 70" class="astro"><g class="o-float">${astroBody({ ...state, patch })}</g></svg>`;
       $("builder-h").textContent = particle ? "Design your particle" : "Design your astronaut";
-      $("builder-join").textContent = particle ? "Join with this particle" : "Join with this astronaut";
       document.querySelectorAll(".astro-only").forEach((el) => (el.hidden = particle));
-      const q = new URLSearchParams({ template: "join.yml", suit: LABELS.suit[state.suit], visor: LABELS.visor[state.visor], top: LABELS.top[state.top], pack: LABELS.pack[state.pack], emoji: patch });
-      $("builder-join").href = `https://github.com/${repo}/issues/new?${q}`;
     };
     for (const part in LABELS) sel(part).addEventListener("change", (e) => { state[part] = e.target.value; draw(); });
     $("b-patch").addEventListener("input", draw);
     redrawBuilder = draw;
+    builderState = () => ({ ...state, patch: $("b-patch").value.trim() || "⭐" });
     $("builder-random").addEventListener("click", () => {
       for (const part in LABELS) { const keys = Object.keys(LABELS[part]); state[part] = keys[Math.floor(Math.random() * keys.length)]; }
       draw();
@@ -678,9 +788,4 @@
     still ? draw(0) : requestAnimationFrame(draw);
   }
 
-  // ---------- join tabs ----------
-  const tabs = [...document.querySelectorAll('[role="tab"]')];
-  tabs.forEach((t) => t.addEventListener("click", () => {
-    tabs.forEach((x) => { const on = x === t; x.setAttribute("aria-selected", on); $(x.getAttribute("aria-controls")).hidden = !on; });
-  }));
 })();

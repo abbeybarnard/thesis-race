@@ -6,8 +6,8 @@ body:
   - type: markdown
     attributes:
       value: |
-        Fill this in, press **Submit new issue**, and a bot adds you to the leaderboard within a minute or two.
-        You can submit it again later to change anything.
+        **Came from the race website?** Everything is already filled in. Just press the green **Create** button at the bottom.
+        Abbey approves new racers, then a bot puts you on the track. Submit this again any time to change your details.
   - type: input
     id: name
     attributes:
@@ -18,7 +18,7 @@ body:
       required: true
   - type: markdown
     attributes:
-      value: "### 🧑‍🚀 Your astronaut\nEveryone races as an astronaut. Try outfits on the leaderboard's *Design your astronaut* panel, or just pick here. You can change it any time by submitting this form again."
+      value: "### 🧑‍🚀 Your astronaut\nEveryone races as an astronaut. Design one on the race website, or just pick here. You can change it any time by submitting this form again."
   - type: dropdown
     id: suit
     attributes:
@@ -46,7 +46,7 @@ body:
       description: One emoji for the badge on your suit.
       placeholder: "🛸"
   - type: input
-    id: title
+    id: thesis
     attributes:
       label: Thesis title (optional)
       description: Used only to pick you a silly racing nickname, and not saved or shown on the leaderboard. This form is public on GitHub, so a vague working title is fine.

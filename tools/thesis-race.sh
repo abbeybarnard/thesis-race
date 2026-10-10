@@ -62,7 +62,7 @@ if [ "$MODE" = "--hook" ]; then
   HOOK="$(git -C "$(dirname "$MAIN")" rev-parse --git-path hooks)/post-commit"
   SELF="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
   MAINABS="$(cd "$(dirname "$MAIN")" && pwd)/$(basename "$MAIN")"
-  printf '#!/bin/sh\n# Thesis Race: report the word count after each commit\n"%s" "%s" >/dev/null 2>&1 &\n' "$SELF" "$MAINABS" >> "$HOOK"
+  grep -qs "Thesis Race" "$HOOK" || printf '#!/bin/sh\n# Thesis Race: report the word count after each commit\n"%s" "%s" >/dev/null 2>&1 &\n' "$SELF" "$MAINABS" >> "$HOOK"
   chmod +x "$HOOK"
   echo "🔁 Will report after every commit (hook: $HOOK)"
 fi
