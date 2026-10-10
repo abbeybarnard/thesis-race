@@ -61,6 +61,8 @@
 
     racers = data.racers.map((r, i) => stats(r, COLOURS[i % COLOURS.length]));
     renderSummary();
+    renderParty();
+    renderPub();
     startDoom();
     renderSkinned();
     renderChart();
@@ -454,6 +456,54 @@ jobs:
     ].join("");
   }
 
+  // ---------- celebrations ----------
+  // Anyone who crossed a 10k milestone in the last three days gets fireworks.
+  function celebrations() {
+    const step = DATA.race.milestone || 10000;
+    const out = [];
+    for (const r of racers) {
+      for (let i = r.series.length - 1; i > 0; i--) {
+        const [d, v] = r.series[i], prev = r.series[i - 1][1];
+        if ((toDate(TODAY) - toDate(d)) / DAY > 2) break;
+        if (Math.floor(v / step) > Math.floor(prev / step)) { out.push({ r, milestone: Math.floor(v / step) * step }); break; }
+      }
+    }
+    if (!out.length && DATA.demo && racers.length) out.push({ r: sorted("words")[0], milestone: Math.floor(sorted("words")[0].words / step) * step });
+    return out;
+  }
+  let PARTY = [];
+  function renderParty() {
+    PARTY = celebrations();
+    $("party").hidden = !PARTY.length;
+    $("party").innerHTML = PARTY.map((c) => `<span>🎉 <b>${esc(c.r.name)}</b> just passed <b>${n(c.milestone)} words</b>!</span>`).join("");
+  }
+
+  // The group pub milestone: every so many words between us, everyone goes to the pub.
+  function groupTotalOn(day) {
+    return racers.reduce((s, r) => { let v = 0; for (const [d, w] of r.series) if (d <= day) v = w; else break; return s + v; }, 0);
+  }
+  function renderPub() {
+    const pub = DATA.race.pub;
+    if (!pub || !pub.every) return;
+    const every = pub.every, total = racers.reduce((s, r) => s + r.words, 0);
+    const next = (Math.floor(total / every) + 1) * every, earned = Math.floor(total / every);
+    const rate = racers.reduce((s, r) => s + r.rate, 0);
+    const eta = rate > 0 ? iso(new Date(+toDate(TODAY) + Math.ceil((next - total) / rate) * DAY)) : null;
+    const weekAgo = iso(new Date(+toDate(TODAY) - 7 * DAY));
+    const justEarned = earned > Math.floor(groupTotalOn(weekAgo) / every) && earned > 0;
+    $("pub").hidden = false;
+    $("pub").classList.toggle("pub-party", justEarned);
+    $("pub-big").innerHTML = justEarned
+      ? `🎉 We passed <strong>${n(earned * every)} words</strong>! That means ${esc(pub.reward)}`
+      : `When we pass <strong>${n(next)} words</strong> together, ${esc(pub.reward)}`;
+    $("pub-fill").style.width = `${(100 * (total - (next - every))) / every}%`;
+    $("pub-bar").setAttribute("aria-label", `${n(total)} of ${n(next)} words`);
+    const bits = [`${n(total)} so far`, `${n(next - total)} to go`];
+    if (eta) bits.push(`at our pace, around ${nice(eta, longDate)}`);
+    if (earned) bits.push(`pub trips earned: ${"🍺".repeat(Math.min(earned, 12))}`);
+    $("pub-sub").textContent = bits.join(" · ");
+  }
+
   // ---------- orbit ----------
   function renderOrbit() {
     const field = sorted("words");
@@ -481,13 +531,15 @@ jobs:
       <defs>
         <pattern id="chequer" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#fff"/><rect width="3" height="3" fill="#1b1040"/><rect x="3" y="3" width="3" height="3" fill="#1b1040"/></pattern>
         <radialGradient id="planet" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#d9b8ff"/><stop offset="0.45" stop-color="#8a4fe0"/><stop offset="1" stop-color="#2a1260"/></radialGradient>
+        <linearGradient id="tail" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0.9"/><stop offset="1" stop-color="#ffd56b" stop-opacity="0"/></linearGradient>
         <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
       </defs>
       ${rings}
       ${collider ? detector(cx, cy) : saturn(cx, cy)}
       ${gate}
+      ${PARTY.length ? shootingStars(W, H) : ""}
       <text x="${cx}" y="${cy - (collider ? 88 : 78)}" class="o-sub">${n(total)} words between us</text>
-      <g>${runners.map((o, i) => `<g class="o-runner" tabindex="0" aria-label="${esc(o.r.name)}, ${n(o.r.words)} words"><title>${esc(o.r.name)}${o.r.nickname ? ` (${esc(o.r.nickname)})` : ""}: ${n(o.r.words)} words</title><circle r="30" class="o-hit"/>${collider ? `<g transform="scale(1.3)"><g class="o-rot">${particleBody(kit(o.r), true)}</g></g>` : `<g class="o-float" style="animation-delay:-${(i * 0.7).toFixed(1)}s"><g transform="scale(1.15)">${astroBody(kit(o.r))}</g></g>`}<text class="o-name" y="-44">${esc(o.r.name)}</text>${o.r.nickname ? `<text class="o-nick" y="44">${esc(o.r.nickname)}</text>` : ""}</g>`).join("")}</g>
+      <g>${runners.map((o, i) => `<g class="o-runner${PARTY.some((c) => c.r.login === o.r.login) ? " o-party" : ""}" tabindex="0" aria-label="${esc(o.r.name)}, ${n(o.r.words)} words"><title>${esc(o.r.name)}${o.r.nickname ? ` (${esc(o.r.nickname)})` : ""}: ${n(o.r.words)} words</title><circle r="30" class="o-hit"/>${PARTY.some((c) => c.r.login === o.r.login) ? sparkles() : ""}${collider ? `<g transform="scale(1.3)"><g class="o-rot">${particleBody(kit(o.r), true)}</g></g>` : `<g class="o-float" style="animation-delay:-${(i * 0.7).toFixed(1)}s"><g transform="scale(1.15)">${astroBody(kit(o.r))}</g></g>`}<text class="o-name" y="-44">${esc(o.r.name)}</text>${o.r.nickname ? `<text class="o-nick" y="44">${esc(o.r.nickname)}</text>` : ""}</g>`).join("")}</g>
     </svg>`;
     const gs = [...$("orbit").querySelectorAll(".o-runner")];
     gs.forEach((g) => { const raise = () => g.parentNode.appendChild(g); g.addEventListener("mouseenter", raise); g.addEventListener("focus", raise); });
@@ -509,6 +561,19 @@ jobs:
     requestAnimationFrame(tick);
   }
 
+
+  // Fireworks for whoever just passed a milestone.
+  function sparkles() {
+    let g = '<g class="o-sparkles" aria-hidden="true"><circle class="o-halo" r="30"/>';
+    for (let i = 0; i < 12; i++) {
+      const a = (i / 12) * 2 * Math.PI, c = ["#ffd56b", "#ff5fb0", "#72e3b2", "#7cc4ff"][i % 4];
+      g += `<g transform="rotate(${((a * 180) / Math.PI).toFixed(0)})"><circle class="o-spark" cx="0" cy="-18" r="4" fill="${c}" style="animation-delay:${(i % 3) * 0.25}s"/></g>`;
+    }
+    return g + "</g>";
+  }
+  function shootingStars(W, H) {
+    return [0, 1, 2].map((i) => `<g class="o-shoot" style="animation-delay:${i * 2.3}s;--sx:${(W * (0.1 + 0.3 * i)).toFixed(0)}px;--sy:${(H * (0.05 + 0.08 * i)).toFixed(0)}px"><line x1="0" y1="0" x2="-70" y2="-26" stroke="url(#tail)" stroke-width="3" stroke-linecap="round"/><circle r="3.2" fill="#fff"/></g>`).join("");
+  }
 
   // Saturn: drifting cloud bands under a fixed shadow, with rocking, glittering rings.
   function saturn(cx, cy) {

@@ -462,3 +462,31 @@ button.btn { font: inherit; font-weight: 600; cursor: pointer; }
 .fc-tag { font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; color: #ff8a94; }
 @keyframes cursed { 0%, 88%, 100% { transform: none; } 90% { transform: translateX(-2px) rotate(-0.6deg); } 92% { transform: translateX(2px) rotate(0.6deg); } 94% { transform: translateX(-1px); } }
 @media (prefers-reduced-motion: reduce) { .fc-cursed { animation: none; } }
+
+/* Celebrations: someone just passed a milestone */
+.party { display: flex; flex-wrap: wrap; gap: 0.5rem 1.2rem; justify-content: center; padding: 0.8rem 1rem; border-radius: 14px; border: 1px solid var(--star); background: linear-gradient(90deg, rgb(255 213 107 / 0.14), rgb(255 95 176 / 0.14)); font-size: 1.02rem; text-align: center; animation: party-glow 2.4s ease-in-out infinite alternate; }
+.party b { color: var(--star); }
+@keyframes party-glow { from { box-shadow: 0 0 0 rgb(255 213 107 / 0); } to { box-shadow: 0 0 26px rgb(255 213 107 / 0.35); } }
+.o-spark { animation: spark 1.4s ease-out infinite; filter: drop-shadow(0 0 3px currentColor); }
+@keyframes spark { 0% { transform: translateY(0) scale(0.6); opacity: 0; } 12% { opacity: 1; } 100% { transform: translateY(-40px) scale(1); opacity: 0; } }
+.o-halo { fill: rgb(255 213 107 / 0.18); stroke: #ffd56b; stroke-width: 2; transform-box: fill-box; transform-origin: center; animation: halo 1.4s ease-in-out infinite alternate; }
+@keyframes halo { from { transform: scale(0.85); opacity: 0.5; } to { transform: scale(1.15); opacity: 1; } }
+.o-shoot { opacity: 0; animation: shoot 7s linear infinite; transform: translate(var(--sx), var(--sy)) rotate(20deg); }
+@keyframes shoot { 0% { opacity: 0; transform: translate(var(--sx), var(--sy)) rotate(20deg) translateX(0); } 3% { opacity: 1; } 14% { opacity: 0; transform: translate(var(--sx), var(--sy)) rotate(20deg) translateX(420px); } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .party, .o-spark, .o-shoot, .o-halo { animation: none; } .o-shoot { display: none; } }
+
+/* Group pub milestone */
+.pub { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 1rem 1.4rem; align-items: center; padding: 1.3rem 1.5rem; border: 1px solid var(--line); border-radius: 18px; background: radial-gradient(16rem 10rem at 0% 50%, rgb(255 179 107 / 0.16), transparent 70%), var(--surface); }
+.pub-glass { font-size: 3.2rem; line-height: 1; animation: cheers 3.5s ease-in-out infinite; transform-origin: 50% 90%; }
+@keyframes cheers { 0%, 80%, 100% { transform: rotate(0); } 85% { transform: rotate(-10deg); } 90% { transform: rotate(8deg); } 95% { transform: rotate(-4deg); } }
+.pub-body { display: grid; gap: 0.5rem; min-width: 0; }
+.pub p { margin: 0; }
+.pub-eyebrow { font-size: 0.74rem; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; color: var(--warn); }
+.pub-big { font-size: 1.15rem; }
+.pub-big strong { color: var(--star); white-space: nowrap; }
+.pub-bar { height: 0.7rem; border-radius: 999px; background: var(--surface-solid); border: 1px solid var(--line); overflow: hidden; }
+.pub-bar span { display: block; height: 100%; min-width: 0.7rem; border-radius: inherit; background: linear-gradient(90deg, #ffb36b, #ffd56b); box-shadow: 0 0 12px rgb(255 213 107 / 0.5); }
+.pub-sub { font-size: 0.88rem; color: var(--muted); }
+.pub-party { border-color: var(--star); box-shadow: 0 0 30px rgb(255 213 107 / 0.3); }
+@media (max-width: 560px) { .pub { grid-template-columns: 1fr; } .pub-glass { font-size: 2.4rem; } }
+@media (prefers-reduced-motion: reduce) { .pub-glass { animation: none; } }

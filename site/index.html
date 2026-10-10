@@ -5,11 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>First: The Thesis Race</title>
 <meta name="description" content="A live word-count race for our DPhil year group. Only counts are shared, never theses.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="First: The Thesis Race">
+<meta property="og:description" content="__OG_DESC__">
+<meta property="og:url" content="__SITE_URL__">
+<meta property="og:image" content="__SITE_URL__og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Chakra+Petch:wght@500;700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
-<link rel="stylesheet" href="style.css?v=11">
+<link rel="stylesheet" href="style.css?v=12">
 </head>
 <body>
 <canvas class="stars" id="stars" aria-hidden="true"></canvas>
@@ -35,11 +43,23 @@
 
   <section class="summary" id="summary" aria-label="Race summary"></section>
 
+  <div class="party" id="party" role="status" hidden></div>
+
   <section class="doom" id="doom" aria-labelledby="doom-h" hidden>
     <p class="doom-eyebrow"><span class="doom-warn" aria-hidden="true">⚠</span> <span id="doom-h">Funding runs out in</span></p>
     <div class="doom-clock" id="doom-clock" role="timer" aria-live="off"></div>
     <p class="doom-date" id="doom-date"></p>
     <p class="doom-line" id="doom-line"></p>
+  </section>
+
+  <section class="pub" id="pub" aria-labelledby="pub-h" hidden>
+    <div class="pub-glass" aria-hidden="true">🍻</div>
+    <div class="pub-body">
+      <p class="pub-eyebrow" id="pub-h">Group milestone</p>
+      <p class="pub-big" id="pub-big"></p>
+      <div class="pub-bar" id="pub-bar" role="img"><span id="pub-fill"></span></div>
+      <p class="pub-sub" id="pub-sub"></p>
+    </div>
   </section>
 
   <section aria-labelledby="track-h">
@@ -217,6 +237,6 @@
 </div>
 
 <div class="tip" id="tip" hidden></div>
-<script src="app.js?v=11"></script>
+<script src="app.js?v=12"></script>
 </body>
 </html>

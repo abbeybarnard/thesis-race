@@ -3,6 +3,8 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: "5 0 * * *" # daily, so the countdown on the group-chat preview stays current
 permissions:
   contents: read
   pages: write
@@ -24,6 +26,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: python scripts/build.py
+      - run: pip install --quiet pillow && python scripts/og.py
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

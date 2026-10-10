@@ -7,5 +7,9 @@
   "page_limit": 250,
   "milestone": 10000,
   "caterpillar_words": 224,
-  "funding_end": "2027-04-01T00:00:00+01:00"
+  "funding_end": "2027-04-01T00:00:00+01:00",
+  "pub": {
+    "every": 100000,
+    "reward": "we all go to the pub!"
+  }
 }
