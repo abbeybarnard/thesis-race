@@ -595,12 +595,15 @@ jobs:
       const rad = (ang * Math.PI) / 180, x1 = x0 + Math.cos(rad) * dist, y1 = y0 + Math.sin(rad) * dist;
       const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
       g.innerHTML = `<line x1="0" y1="0" x2="${-tail}" y2="0" stroke="url(#meteor)" stroke-width="1.6" stroke-linecap="round"/><circle r="1.7" fill="#fff" filter="url(#mglow)"/>`;
-      layer.appendChild(g);
       const line = g.firstChild, ms = rnd(650, 1050);
       const at = (x, y) => `translate(${x}px, ${y}px) rotate(${ang}deg)`;
-      g.animate([{ transform: at(x0, y0), opacity: 0 }, { opacity: 1, offset: 0.12 }, { opacity: 1, offset: 0.7 }, { transform: at(x1, y1), opacity: 0 }], { duration: ms, easing: "cubic-bezier(.3,.1,.7,1)" });
-      line.animate([{ transform: "scaleX(0.05)" }, { transform: "scaleX(1)", offset: 0.55 }, { transform: "scaleX(0.6)" }], { duration: ms });
-      setTimeout(() => g.remove(), ms + 50);
+      // Start invisible at the launch point, so it never shows at the corner before or after flying.
+      g.style.transform = at(x0, y0);
+      g.style.opacity = "0";
+      layer.appendChild(g);
+      const fly = g.animate([{ transform: at(x0, y0), opacity: 0 }, { opacity: 1, offset: 0.12 }, { opacity: 1, offset: 0.7 }, { transform: at(x1, y1), opacity: 0 }], { duration: ms, easing: "cubic-bezier(.3,.1,.7,1)", fill: "forwards" });
+      line.animate([{ transform: "scaleX(0.05)" }, { transform: "scaleX(1)", offset: 0.55 }, { transform: "scaleX(0.6)" }], { duration: ms, fill: "forwards" });
+      fly.onfinish = () => g.remove();
       meteorTimer = setTimeout(fire, rnd(1800, 5200));
     };
     meteorTimer = setTimeout(fire, rnd(400, 1500));
