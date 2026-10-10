@@ -347,6 +347,7 @@ jobs:
     };
     for (const part in LABELS) sel(part).addEventListener("change", (e) => { state[part] = e.target.value; draw(); });
     $("b-patch").addEventListener("input", draw);
+    patchPicker(draw);
     redrawBuilder = draw;
     builderState = () => ({ ...state, patch: $("b-patch").value.trim() || "⭐" });
     $("builder-random").addEventListener("click", () => {
@@ -354,6 +355,30 @@ jobs:
       draw();
     });
     draw();
+  }
+
+  // Browsers can't open the computer's own emoji keyboard, so the patch box gets its own picker.
+  const PATCHES = "🛸 🚀 🪐 🌙 ⭐ 🌟 ✨ ☄️ 🌌 🌍 🔭 🛰️ 👽 👾 🤖 ⚛️ 🧲 💡 🔬 🧪 🧬 📡 ⚡ 🔥 💥 ❄️ 🌈 🌸 🌻 🍀 🐙 🦄 🐱 🐶 🦊 🐸 🐝 🦋 🐢 🐧 🍕 🍩 ☕ 🧋 🎧 🎸 🎲 🧩 📚 ✏️ 💜 🩷".split(" ");
+  function patchPicker(onPick) {
+    const input = $("b-patch"), pop = $("patch-pop");
+    pop.innerHTML = PATCHES.map((e) => `<button type="button" class="patch-opt" aria-label="${e}">${e}</button>`).join("") + '<p class="patch-hint">Or type any emoji in the box.</p>';
+    const open = () => { pop.hidden = false; input.setAttribute("aria-expanded", "true"); };
+    const close = () => { pop.hidden = true; input.setAttribute("aria-expanded", "false"); };
+    input.addEventListener("focus", open);
+    input.addEventListener("click", open);
+    pop.addEventListener("click", (e) => {
+      const b = e.target.closest(".patch-opt");
+      if (!b) return;
+      input.value = b.textContent;
+      onPick();
+      input.focus({ preventScroll: true });
+      close();
+    });
+    // Typing your own emoji closes the picker so it doesn't cover the box.
+    input.addEventListener("keydown", (e) => { if (e.key === "Escape" || e.key === "Enter") { e.preventDefault(); close(); } else if (e.key !== "Tab") setTimeout(close, 0); });
+    pop.addEventListener("keydown", (e) => { if (e.key === "Escape") { close(); input.focus(); } });
+    document.addEventListener("pointerdown", (e) => { if (!e.target.closest(".patch-wrap")) close(); });
+    document.addEventListener("focusin", (e) => { if (!e.target.closest(".patch-wrap")) close(); });
   }
 
   // ---------- numbers ----------

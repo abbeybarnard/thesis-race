@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Chakra+Petch:wght@500;700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
-<link rel="stylesheet" href="style.css?v=5">
+<link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
 <canvas class="stars" id="stars" aria-hidden="true"></canvas>
@@ -112,7 +112,9 @@
               <label class="astro-only" for="b-visor">Visor<select id="b-visor" data-part="visor"></select></label>
               <label class="astro-only" for="b-top">Helmet topper<select id="b-top" data-part="top"></select></label>
               <label class="astro-only" for="b-pack">Backpack<select id="b-pack" data-part="pack"></select></label>
-              <label for="b-patch">Mission patch emoji<input id="b-patch" maxlength="8" value="🛸"></label>
+              <div class="patch-field"><label for="b-patch">Mission patch emoji</label>
+                <div class="patch-wrap"><input id="b-patch" maxlength="8" value="🛸" autocomplete="off" aria-haspopup="true" aria-controls="patch-pop">
+                  <div class="patch-pop" id="patch-pop" role="group" aria-label="Pick an emoji" hidden></div></div></div>
             </div>
             <button type="button" class="btn btn-small" id="builder-random">Surprise me</button>
           </div>
@@ -211,6 +213,6 @@
 </div>
 
 <div class="tip" id="tip" hidden></div>
-<script src="app.js?v=5"></script>
+<script src="app.js?v=6"></script>
 </body>
 </html>
