@@ -622,10 +622,20 @@ jobs:
       }
       const from = r.nextMilestone - step;
       const done = Math.max(0, Math.min(100, (100 * (r.words - from)) / step));
+      // A straight-line forecast runs away over months, but no thesis outgrows the page limit:
+      // past it, say when they'd hit the limit instead.
       let day = "";
       if (r.proj) {
-        const spread = r.proj.hi - r.proj.lo > 0.1 * r.proj.mid;
-        day = `<p class="fc-day">📅 On submission day, ${nice(r.deadline, longDate)}: about <strong>${k(Math.round(r.proj.mid / 1000) * 1000)} words</strong>${spread ? ` <span>(anywhere from ${k(Math.round(r.proj.lo / 1000) * 1000)} to ${k(Math.round(r.proj.hi / 1000) * 1000)}, depending on whether this week's pace keeps up)</span>` : ""}.</p>`;
+        const wpp = DATA.race.words_per_page, limit = DATA.race.page_limit * wpp;
+        const pages = (w) => Math.round(w / wpp / 5) * 5;
+        if (r.proj.mid >= limit && r.words < limit) {
+          const hit = iso(new Date(+toDate(TODAY) + Math.ceil((limit - r.words) / r.rate) * DAY));
+          day = `<p class="fc-day">📏 At this pace you'd fill the ${DATA.race.page_limit}-page limit (about ${k(limit)} words) around <strong>${nice(hit, longDate)}</strong>, before submission on ${nice(r.deadline, longDate)}. <span>Expect editing to take over from writing.</span></p>`;
+        } else if (r.words >= limit) {
+          day = `<p class="fc-day">📏 Already at the ${DATA.race.page_limit}-page limit. <span>Time for the editor's knife.</span></p>`;
+        } else {
+          day = `<p class="fc-day">📅 On submission day, ${nice(r.deadline, longDate)}: about <strong>${k(Math.round(r.proj.mid / 1000) * 1000)} words</strong>, <span>roughly ${pages(r.proj.mid)} pages.</span></p>`;
+        }
       }
       return `<article class="fc">${head}
         <p class="fc-big">Reaches <strong>${n(r.nextMilestone)} words</strong> around <strong>${nice(r.milestoneEta)}</strong></p>
