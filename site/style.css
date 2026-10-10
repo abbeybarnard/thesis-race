@@ -456,3 +456,9 @@ button.btn { font: inherit; font-weight: 600; cursor: pointer; }
 .fc-day span { color: var(--muted); font-size: 0.84rem; }
 .fc-cloudy .fc-big { color: var(--muted); font-style: italic; }
 .fc-cloudy .fc-sub { display: block; }
+/* Crystal ball easter egg: the cursed prophecy */
+.fc-cursed { border-color: #ff5f6d; background: radial-gradient(16rem 10rem at 50% 0%, rgb(255 95 109 / 0.22), transparent 70%), var(--surface); box-shadow: 0 0 24px rgb(255 95 109 / 0.25); animation: cursed 5s ease-in-out infinite; }
+.fc-cursed .fc-big { color: #ffd0d4; font-style: italic; }
+.fc-tag { font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; color: #ff8a94; }
+@keyframes cursed { 0%, 88%, 100% { transform: none; } 90% { transform: translateX(-2px) rotate(-0.6deg); } 92% { transform: translateX(2px) rotate(0.6deg); } 94% { transform: translateX(-1px); } }
+@media (prefers-reduced-motion: reduce) { .fc-cursed { animation: none; } }

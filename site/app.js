@@ -614,6 +614,7 @@ jobs:
     $("predict-headline").innerHTML = bits.join("");
 
     const step = DATA.race.milestone || 10000;
+    const cursed = cursedToday();
     const order = [...racers].sort((a, b) => (a.milestoneEta || "9999").localeCompare(b.milestoneEta || "9999") || b.words - a.words);
     $("predict").innerHTML = order.map((r) => {
       const head = `<div class="fc-head">${avatar(r, 34)}<div><b>${esc(r.name)}</b>${r.nickname ? `<span class="nick">${esc(r.nickname)}</span>` : ""}</div></div>`;
@@ -637,6 +638,9 @@ jobs:
           day = `<p class="fc-day">📅 On submission day, ${nice(r.deadline, longDate)}: about <strong>${k(Math.round(r.proj.mid / 1000) * 1000)} words</strong>, <span>roughly ${pages(r.proj.mid)} pages.</span></p>`;
         }
       }
+      if (cursed && cursed.login === r.login) {
+        return `<article class="fc fc-cursed">${head}<p class="fc-tag">🔮 Today's prophecy</p><p class="fc-big">${esc(cursed.line)}</p><p class="fc-pace">The crystal ball is never wrong. (It is often wrong.)</p></article>`;
+      }
       return `<article class="fc">${head}
         <p class="fc-big">Reaches <strong>${n(r.nextMilestone)} words</strong> around <strong>${nice(r.milestoneEta)}</strong></p>
         <div class="fc-bar" role="img" aria-label="${n(r.words)} of ${n(r.nextMilestone)} words"><span style="width:${done}%"></span></div>
@@ -644,6 +648,30 @@ jobs:
         <p class="fc-pace">Writing about ${n(r.rate)} words a day lately.</p>
         ${day}</article>`;
     }).join("");
+  }
+  // Easter egg: on roughly one day in five, the crystal ball picks someone and declares
+  // they'll never make it. Same person and line for everyone all day; add ?prophecy to the
+  // address to see one any day.
+  const PROPHECIES = [
+    "Finishes on 1 April 2027 at 00:00:01. One second after the money runs out.",
+    "Projected finish: the year 2081. The thesis will be examined by robots.",
+    "Will be \"basically done, just tidying up\" until the heat death of the universe.",
+    "Submits one day after the funding ends. The universe has a sense of humour.",
+    "Finishing date: ERROR. The crystal ball cracked trying to work it out.",
+    "Will finish the thesis the same week the LHC finds supersymmetry.",
+    "Finishes in 2031, still promising their supervisor it'll be \"next week\".",
+    "Will submit on time, in a parallel universe. Not this one.",
+    "Gets to the conclusion in 2029, then decides to rewrite the introduction.",
+    "Finishes just as their references finally compile. Estimated: never.",
+  ];
+  function cursedToday() {
+    const forced = /[?&]prophecy\b/.test(location.search);
+    if (!racers.length) return null;
+    let h = 2166136261;
+    for (const c of `thesis-race|${TODAY}`) h = Math.imul(h ^ c.codePointAt(0), 16777619) >>> 0;
+    if (!forced && h % 5) return null;
+    const pool = [...racers].sort((a, b) => a.login.localeCompare(b.login));
+    return { login: pool[(h >>> 8) % pool.length].login, line: PROPHECIES[(h >>> 16) % PROPHECIES.length] };
   }
   function inDays(d) {
     const days = Math.round((toDate(d) - toDate(TODAY)) / DAY);
