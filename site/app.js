@@ -19,7 +19,7 @@
       track: "In orbit", gate: "FINISH GATE", crew: "The Launch Crew", chart: "Flight paths",
       hint: (f, m) => `Everyone flies anticlockwise towards the finish gate at ${f} words. Each time someone reaches it, the gate moves another ${m} words out, like an expanding universe.`,
       far: ["🌌", "Furthest from Earth"], steady: ["🛰️", "Steady orbit"],
-      doom: "Life support fails in", doomDone: "Life support has failed. Godspeed.",
+      doom: "Spaceship departs in", doomDone: "The spaceship has departed. Godspeed.",
     },
     collider: {
       lede: "Everyone's word count, live from the beam pipe. Only the numbers are shared, never the theses.",
@@ -29,7 +29,10 @@
       doom: "Beam dump in", doomDone: "The beam has been dumped. Godspeed.",
     },
   };
-  const savedSkin = (() => { try { return localStorage.getItem("thesis-race-skin"); } catch { return null; } })();
+  // The Collider theme is parked for now: set SKIN_SWITCH to true (and unhide the switch
+  // in index.html) to bring it back.
+  const SKIN_SWITCH = false;
+  const savedSkin = SKIN_SWITCH ? (() => { try { return localStorage.getItem("thesis-race-skin"); } catch { return null; } })() : null;
   let SKIN = SKINS[savedSkin] ? savedSkin : "space";
   document.documentElement.dataset.skin = SKIN;
   const T = () => SKINS[SKIN];
