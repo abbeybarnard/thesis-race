@@ -1,7 +1,7 @@
 name: Race forms
 on:
   issues:
-    types: [opened, labeled]
+    types: [opened, labeled, closed]
 permissions:
   contents: write
   issues: write
@@ -11,10 +11,14 @@ concurrency:
   cancel-in-progress: false
 jobs:
   handle:
-    # New racers wait for the owner to add the "approved" label; log forms and profile updates go straight through.
+    # New racers wait for the owner to close their entry as completed (or add the "approved" label);
+    # log forms and profile updates go straight through. Entries from the website are plain issues
+    # recognised by their title.
     if: >-
-      (github.event.action == 'opened' && (contains(github.event.issue.labels.*.name, 'join') || contains(github.event.issue.labels.*.name, 'log'))) ||
-      (github.event.action == 'labeled' && github.event.label.name == 'approved')
+      (github.event.action == 'opened' && (contains(github.event.issue.labels.*.name, 'join') || contains(github.event.issue.labels.*.name, 'log') ||
+        startsWith(github.event.issue.title, 'Join the race') || startsWith(github.event.issue.title, 'Log my words'))) ||
+      (github.event.action == 'labeled' && github.event.label.name == 'approved') ||
+      (github.event.action == 'closed' && github.event.issue.state_reason == 'completed' && github.event.sender.login == github.repository_owner)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -27,8 +31,8 @@ jobs:
       - name: Save the change
         env:
           LOGIN: ${{ github.event.issue.user.login }}
-          KIND: ${{ contains(github.event.issue.labels.*.name, 'join') && 'Join' || 'Log words' }}
         run: |
+          KIND="$( [ "$(cat kind.txt)" = join ] && echo Join || echo 'Log words' )"
           if [ "$(cat result.txt)" = ok ] && [ -n "$(git status --porcelain data)" ]; then
             git config user.name "thesis-race-bot"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -41,10 +45,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           NUMBER: ${{ github.event.issue.number }}
         run: |
+          [ -n "$(cat kind.txt)" ] && gh issue edit "$NUMBER" --add-label "$(cat kind.txt)" || true
           case "$(cat result.txt)" in
             ok)       gh issue comment "$NUMBER" --body-file reply.md
                       gh issue edit "$NUMBER" --remove-label "awaiting approval" || true
-                      gh issue close "$NUMBER" --reason completed
+                      gh issue close "$NUMBER" --reason completed || true
                       gh workflow run pages.yml ;;
             pending)  gh issue comment "$NUMBER" --body-file reply.md
                       gh issue edit "$NUMBER" --add-label "awaiting approval" ;;

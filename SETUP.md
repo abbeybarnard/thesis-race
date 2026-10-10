@@ -7,4 +7,4 @@
 
 ## Approving new racers
 
-New join requests stay open with the **awaiting approval** label. To let someone in, add the **approved** label to their issue (works from the GitHub app too). Only the repo owner's label counts. To turn someone down, just close the issue. Existing racers updating their details, and everyone's word logs, go straight through.
+New join requests stay open with the **awaiting approval** label. To let someone in, close their issue as **completed** (the normal Close button), or add the **approved** label. Works from the GitHub app too, and only the repo owner counts. To turn someone down, close it as **not planned**. Existing racers updating their details, and everyone's word logs, go straight through.

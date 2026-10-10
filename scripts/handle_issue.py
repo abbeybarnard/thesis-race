@@ -16,6 +16,14 @@ event = json.load(open(os.environ["GITHUB_EVENT_PATH"]))
 issue = event["issue"]
 login = issue["user"]["login"]
 labels = {l["name"] for l in issue["labels"]}
+# The website opens plain issues with a ready-written body, which can't carry labels
+# for people outside the repo, so the title says which form it is.
+title_text = (issue.get("title") or "").lower()
+if title_text.startswith("join the race"):
+    labels.add("join")
+elif title_text.startswith("log my words"):
+    labels.add("log")
+(ROOT / "kind.txt").write_text("join" if "join" in labels else "log" if "log" in labels else "")
 
 
 def fields(body):
@@ -68,15 +76,23 @@ f = fields(issue["body"])
 action = event.get("action", "opened")
 owner = os.environ.get("RACE_OWNER", "").lower()
 
-if action == "labeled":
-    # Only the race owner adding the "approved" label lets a new racer in.
-    if event.get("label", {}).get("name") != "approved" or event["sender"]["login"].lower() != owner or "join" not in labels:
+if action in ("labeled", "closed"):
+    # Only the race owner lets a new racer in: by closing their entry as completed,
+    # or by adding the "approved" label.
+    approving = (
+        event.get("label", {}).get("name") == "approved"
+        if action == "labeled"
+        else issue.get("state_reason") == "completed" and load_racer(login) is None
+    )
+    if not approving or event["sender"]["login"].lower() != owner or "join" not in labels:
         (ROOT / "result.txt").write_text("ignore")
         sys.exit(0)
 elif "join" in labels and load_racer(login) is None:
     (ROOT / "reply.md").write_text(
-        f"Thanks for signing up! 🚀 Your request is waiting for @{owner} to approve it. "
-        "You'll get a notification here as soon as you're on the leaderboard.\n"
+        f"Thanks for signing up! 🚀 Your entry is waiting for @{owner} to approve it. "
+        "GitHub will email you as soon as you're on the leaderboard.\n\n"
+        f"@{owner}: to let them in, close this issue as **completed** (or add the `approved` label). "
+        "To say no, close it as **not planned**.\n"
     )
     (ROOT / "result.txt").write_text("pending")
     sys.exit(0)
@@ -104,7 +120,7 @@ if "join" in labels:
         racer["history"][today()] = start
     save_racer(racer)
     how = (
-        "Your count will update itself once you run the reporting script. The README has the one-line setup."
+        f"Your count will update itself once you've set up reporting. The steps are under *Keep your count up to date* on the [race website](https://{owner}.github.io/{os.environ.get('GITHUB_REPOSITORY', '/thesis-race').split('/')[1]}/#setup)."
         if racer["method"] == "auto"
         else "Log your words whenever you like with the **Log my words** form. Overleaf shows your count under *Menu → Word Count*."
     )

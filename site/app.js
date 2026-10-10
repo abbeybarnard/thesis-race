@@ -100,9 +100,13 @@
     githubHelper(repo);
   }
 
-  // GitHub issue forms take their answers from the URL, keyed by each field's id,
-  // so people fill everything in here and only press Create on GitHub.
-  const issueUrl = (repo, params) => `https://github.com/${repo}/issues/new?${new URLSearchParams(Object.entries(params).filter(([, v]) => v !== "" && v != null))}`;
+  // Opens a plain GitHub issue with a ready-written body in the same "### Question" layout
+  // as the issue forms, so people only press Create. Issue forms don't reliably appear for
+  // people outside the repo, so the bot recognises these entries by their title instead.
+  const issueUrl = (repo, title, intro, answers) => {
+    const body = [intro, ...Object.entries(answers).filter(([, v]) => v).map(([q, v]) => `### ${q}\n\n${v}`)].join("\n\n");
+    return `https://github.com/${repo}/issues/new?${new URLSearchParams({ title, body })}`;
+  };
   function sendToGitHub(url, errorEl) {
     const w = window.open(url, "_blank");
     if (w) w.opener = null;
@@ -138,16 +142,14 @@
       const start = $("j-start").value.trim();
       if (start && !(Number(start) >= 0)) return fail(err, "Words so far should be a number, like 2300.", $("j-start"));
       const kit = builderState();
-      sendToGitHub(issueUrl(repo, {
-        template: "join.yml",
-        title: `Join the race: ${name}`,
-        name,
-        suit: LABELS.suit[kit.suit], visor: LABELS.visor[kit.visor], top: LABELS.top[kit.top], pack: LABELS.pack[kit.pack],
-        emoji: kit.patch,
-        thesis: $("j-thesis").value.trim(),
-        deadline: $("j-deadline").value,
-        start: start && String(Math.round(Number(start))),
-        method: method() === "overleaf" ? METHOD.hand : METHOD.auto,
+      sendToGitHub(issueUrl(repo, `Join the race: ${name}`, "👋 Press **Create** to send your entry. Abbey approves new racers, and GitHub emails you when you're on the leaderboard.", {
+        "Display name": name,
+        "Suit colour": LABELS.suit[kit.suit], "Visor": LABELS.visor[kit.visor], "Helmet topper": LABELS.top[kit.top], "Backpack": LABELS.pack[kit.pack],
+        "Mission patch emoji": kit.patch,
+        "Thesis title (optional)": $("j-thesis").value.trim(),
+        "Submission date (optional)": $("j-deadline").value,
+        "Words so far": start && String(Math.round(Number(start))),
+        "How will you track your words?": method() === "overleaf" ? METHOD.hand : METHOD.auto,
       }), err);
     });
   }
@@ -158,7 +160,7 @@
       const err = $("l-error");
       const words = $("l-words").value.trim();
       if (!words || !(Number(words) >= 0)) return fail(err, "Type your total word count, like 23410.", $("l-words"));
-      sendToGitHub(issueUrl(repo, { template: "log.yml", title: "Log my words", words: String(Math.round(Number(words))), note: $("l-note").value.trim() }), err);
+      sendToGitHub(issueUrl(repo, "Log my words", "✍️ Press **Create** to log your count.", { "Word count": String(Math.round(Number(words))), "Note (optional, public)": $("l-note").value.trim() }), err);
     });
   }
 
