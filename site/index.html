@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Chakra+Petch:wght@500;700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
-<link rel="stylesheet" href="style.css?v=12">
+<link rel="stylesheet" href="style.css?v=13">
 </head>
 <body>
 <canvas class="stars" id="stars" aria-hidden="true"></canvas>
@@ -229,6 +229,46 @@
     </form>
   </section>
 
+  <section class="faq" id="faq" aria-labelledby="faq-h">
+    <div class="section-head"><h2 id="faq-h">How it works</h2></div>
+    <div class="faq-list">
+      <details>
+        <summary>What gets shared about me?</summary>
+        <p>Only your total word count and the date it changed, plus the bits you choose for the leaderboard: your display name, astronaut, mission patch emoji, nickname, and your submission date and notes if you add them. Your thesis itself, and its title, never leave your computer or Overleaf.</p>
+      </details>
+      <details>
+        <summary>Who can see the race?</summary>
+        <p>Anyone with the link can see this page. The race lives on GitHub, so your join entry and the numbers in the race's data files are public there too. Use a nickname as your display name if you'd rather not use your real name.</p>
+      </details>
+      <details>
+        <summary>Where does my word count come from?</summary>
+        <p>If you count by hand, it's whatever you type into <a href="#log">Log my words</a>, usually Overleaf's <strong>Menu → Word Count</strong>. If you set up automatic reporting, <code>texcount</code> counts your thesis on your own computer, or in your own GitHub repo, and sends just the total. Either way, headings and captions count, and the leaderboard catches up within three hours.</p>
+      </details>
+      <details>
+        <summary>How do I change my name, astronaut or submission date?</summary>
+        <p>Fill in the <a href="#join">join form</a> again with your new details and press Create. It updates your entry rather than adding a second one, and you won't need approving again.</p>
+      </details>
+      <details>
+        <summary>Do weekends break my streak?</summary>
+        <p>No. Weekends are rest days. Writing on a Saturday adds to your streak, but skipping one never breaks it.</p>
+      </details>
+      <details id="faq-quiet">
+        <summary>Can I take a break from the leaderboard?</summary>
+        <p>Yes. <strong>Quiet mode</strong> hides you from the orbit, the leaderboard, the crystal ball and the trophies. Your words still quietly count towards the group total and the pub, and your count keeps updating, so nothing is lost when you come back. (Your numbers do stay in the race's public data files on GitHub.)</p>
+        <p class="faq-actions"><a class="btn" id="quiet-on" href="#" target="_blank" rel="noopener">🌙 Go quiet</a><a class="btn" id="quiet-off" href="#" target="_blank" rel="noopener">🚀 Come back</a></p>
+      </details>
+      <details>
+        <summary>How do I leave?</summary>
+        <p>Press the button below, then Create on GitHub, and the bot removes you and all your numbers from the race. You're welcome back any time.</p>
+        <p class="faq-actions"><a class="btn" id="leave" href="#" target="_blank" rel="noopener">Leave the race</a></p>
+      </details>
+      <details>
+        <summary>Is it a competition?</summary>
+        <p>Only a silly one. There are no targets and nobody is behind. It's a way to see that everyone else is also writing, to cheer each other on, and to earn a trip to the pub together.</p>
+      </details>
+    </div>
+  </section>
+
   <footer class="foot">
     <p id="updated"></p>
     <p>Counts come from <code>texcount</code> or Overleaf, so they include headings and captions. Pages are estimated at <span id="wpp">300</span> words each. The Very Hungry Caterpillar is about <span id="cat">224</span> words long.</p>
@@ -237,6 +277,6 @@
 </div>
 
 <div class="tip" id="tip" hidden></div>
-<script src="app.js?v=12"></script>
+<script src="app.js?v=13"></script>
 </body>
 </html>

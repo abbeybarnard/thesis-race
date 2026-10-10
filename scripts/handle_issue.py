@@ -9,7 +9,7 @@ import re
 import sys
 from datetime import date
 
-from common import ROOT, load_racer, save_racer, today
+from common import ROOT, load_racer, racer_path, save_racer, today
 from nickname import nickname
 
 event = json.load(open(os.environ["GITHUB_EVENT_PATH"]))
@@ -23,6 +23,7 @@ if title_text.startswith("join the race"):
     labels.add("join")
 elif title_text.startswith("log my words"):
     labels.add("log")
+special = next((k for t, k in (("quiet mode on", "quiet-on"), ("quiet mode off", "quiet-off"), ("leave the race", "leave")) if title_text.startswith(t)), None)
 (ROOT / "kind.txt").write_text("join" if "join" in labels else "log" if "log" in labels else "")
 
 
@@ -75,6 +76,24 @@ def finish(message, ok):
 f = fields(issue["body"])
 action = event.get("action", "opened")
 owner = os.environ.get("RACE_OWNER", "").lower()
+
+if special and action == "opened":
+    racer = load_racer(login)
+    if racer is None:
+        finish("You're not in the race, so there's nothing to change.", False)
+    if special == "leave":
+        racer_path(login).unlink()
+        finish("You've left the race and your numbers have been removed from the leaderboard. Thanks for flying with us. 🚀 You're welcome back any time.", True)
+    racer["quiet"] = special == "quiet-on"
+    if not racer["quiet"]:
+        racer.pop("quiet")
+    save_racer(racer)
+    finish(
+        "Quiet mode is on. 🌙 You've vanished from the leaderboard, the orbit and the crystal ball, but your words still count towards the group total and the pub. Your count keeps updating in the background, so you can come back any time."
+        if special == "quiet-on"
+        else "Welcome back! 🚀 You're visible on the leaderboard again.",
+        True,
+    )
 
 if action in ("labeled", "closed"):
     # Only the race owner lets a new racer in: by closing their entry as completed,

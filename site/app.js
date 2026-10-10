@@ -12,7 +12,7 @@
   const nice = (s, opts = { day: "numeric", month: "short" }) => toDate(s).toLocaleDateString("en-GB", { ...opts, timeZone: "UTC" });
   const longDate = { day: "numeric", month: "short", year: "numeric" };
 
-  let DATA, TODAY, racers, sortKey = "words";
+  let DATA, TODAY, racers, EVERYONE, sortKey = "words";
   const SKINS = {
     space: {
       lede: "Everyone's word count, live from orbit. Only the numbers are shared, never the theses.",
@@ -59,7 +59,9 @@
     wireLinks(race.repo);
     builder();
 
-    racers = data.racers.map((r, i) => stats(r, COLOURS[i % COLOURS.length]));
+    // Quiet-mode racers still count towards group totals, but don't appear by name anywhere.
+    EVERYONE = data.racers.map((r, i) => stats(r, COLOURS[i % COLOURS.length]));
+    racers = EVERYONE.filter((r) => !r.quiet);
     renderSummary();
     renderParty();
     renderPub();
@@ -103,6 +105,9 @@
     joinForm(repo);
     logForm(repo);
     githubHelper(repo);
+    $("quiet-on").href = issueUrl(repo, "Quiet mode on", "🌙 Press **Create** to hide from the leaderboard. Your words still count towards the group total.", {});
+    $("quiet-off").href = issueUrl(repo, "Quiet mode off", "🚀 Press **Create** to reappear on the leaderboard.", {});
+    $("leave").href = issueUrl(repo, "Leave the race", "Press **Create** to leave the race. The bot removes you and all your numbers.", {});
   }
 
   // Opens a plain GitHub issue with a ready-written body in the same "### Question" layout
@@ -246,7 +251,7 @@ jobs:
   }
   function grimLine() {
     const left = Math.max(0, doomEnd - Date.now()), days = left / DAY;
-    const groupRate = racers.reduce((s, r) => s + r.rate, 0);
+    const groupRate = EVERYONE.reduce((s, r) => s + r.rate, 0);
     const lines = [
       `That's ${Math.floor(days / 7)} weekends. Spend them wisely.`,
       groupRate ? `At this pace, the group writes ~${n(groupRate * days)} more words before the money stops.` : `Nobody has a writing pace yet. The clock does not care.`,
@@ -409,6 +414,7 @@ jobs:
     for (let i = daily.length - 1; i >= 0; i--) {
       if (daily[i][1] > 0) streak++;
       else if (i === daily.length - 1) continue; // today isn't over yet
+      else if ([0, 6].includes(toDate(daily[i][0]).getUTCDay())) continue; // weekends are rest days
       else break;
     }
     let best = null, cut = null;
@@ -443,14 +449,14 @@ jobs:
   // ---------- summary ----------
   function renderSummary() {
     const race = DATA.race;
-    const total = racers.reduce((s, r) => s + r.words, 0);
-    const week = racers.reduce((s, r) => s + Math.max(0, r.week), 0);
-    const writing = racers.filter((r) => r.week > 0).length;
+    const total = EVERYONE.reduce((s, r) => s + r.words, 0);
+    const week = EVERYONE.reduce((s, r) => s + Math.max(0, r.week), 0);
+    const writing = EVERYONE.filter((r) => r.week > 0).length;
     const pages = total / race.words_per_page;
     const caterpillars = total / race.caterpillar_words;
     $("summary").innerHTML = [
-      stat(n(total), "Words written", `by ${racers.length} ${racers.length === 1 ? "racer" : "racers"}`),
-      stat(signed(week), "This week", `${writing} of ${racers.length} writing`),
+      stat(n(total), "Words written", `by ${EVERYONE.length} ${EVERYONE.length === 1 ? "racer" : "racers"}`),
+      stat(signed(week), "This week", `${writing} of ${EVERYONE.length} writing`),
       stat(`${n(caterpillars)} 🐛`, "Very Hungry Caterpillars", "worth of words, back to back"),
       stat(n(pages), "Pages, roughly", `${(pages / race.page_limit).toFixed(1)}× the ${race.page_limit}-page limit`),
     ].join("");
@@ -480,14 +486,14 @@ jobs:
 
   // The group pub milestone: every so many words between us, everyone goes to the pub.
   function groupTotalOn(day) {
-    return racers.reduce((s, r) => { let v = 0; for (const [d, w] of r.series) if (d <= day) v = w; else break; return s + v; }, 0);
+    return EVERYONE.reduce((s, r) => { let v = 0; for (const [d, w] of r.series) if (d <= day) v = w; else break; return s + v; }, 0);
   }
   function renderPub() {
     const pub = DATA.race.pub;
     if (!pub || !pub.every) return;
-    const every = pub.every, total = racers.reduce((s, r) => s + r.words, 0);
+    const every = pub.every, total = EVERYONE.reduce((s, r) => s + r.words, 0);
     const next = (Math.floor(total / every) + 1) * every, earned = Math.floor(total / every);
-    const rate = racers.reduce((s, r) => s + r.rate, 0);
+    const rate = EVERYONE.reduce((s, r) => s + r.rate, 0);
     const eta = rate > 0 ? iso(new Date(+toDate(TODAY) + Math.ceil((next - total) / rate) * DAY)) : null;
     const weekAgo = iso(new Date(+toDate(TODAY) - 7 * DAY));
     const justEarned = earned > Math.floor(groupTotalOn(weekAgo) / every) && earned > 0;
@@ -525,19 +531,20 @@ jobs:
     const [, bIn] = rad(0), [, bOut] = rad(lanes - 1);
     const gate = `<rect x="${cx - 6}" y="${cy + bIn - gap / 2}" width="12" height="${bOut - bIn + gap}" fill="url(#chequer)" opacity="0.9" filter="url(#glow)"/>
       <text x="${cx}" y="${cy + bOut + gap / 2 + 20}" class="o-gate-label">${T().gate} · ${k(finish)} WORDS</text>`;
-    const total = racers.reduce((s, r) => s + r.words, 0);
+    const total = EVERYONE.reduce((s, r) => s + r.words, 0);
     const runners = field.map((r, i) => ({ r, ab: rad(i % lanes), t: r.words / finish }));
     $("orbit").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Racers orbiting a planet, positioned by word count">
       <defs>
         <pattern id="chequer" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#fff"/><rect width="3" height="3" fill="#1b1040"/><rect x="3" y="3" width="3" height="3" fill="#1b1040"/></pattern>
         <radialGradient id="planet" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#d9b8ff"/><stop offset="0.45" stop-color="#8a4fe0"/><stop offset="1" stop-color="#2a1260"/></radialGradient>
-        <linearGradient id="tail" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0.9"/><stop offset="1" stop-color="#ffd56b" stop-opacity="0"/></linearGradient>
+        <linearGradient id="meteor" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="-140" y2="0"><stop offset="0" stop-color="#fff"/><stop offset="0.25" stop-color="#ffe9b0" stop-opacity="0.8"/><stop offset="1" stop-color="#b18cff" stop-opacity="0"/></linearGradient>
+        <filter id="mglow" x="-300%" y="-300%" width="700%" height="700%"><feGaussianBlur stdDeviation="1.6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
         <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
       </defs>
       ${rings}
       ${collider ? detector(cx, cy) : saturn(cx, cy)}
       ${gate}
-      ${PARTY.length ? shootingStars(W, H) : ""}
+      <g class="o-meteors" aria-hidden="true"></g>
       <text x="${cx}" y="${cy - (collider ? 88 : 78)}" class="o-sub">${n(total)} words between us</text>
       <g>${runners.map((o, i) => `<g class="o-runner${PARTY.some((c) => c.r.login === o.r.login) ? " o-party" : ""}" tabindex="0" aria-label="${esc(o.r.name)}, ${n(o.r.words)} words"><title>${esc(o.r.name)}${o.r.nickname ? ` (${esc(o.r.nickname)})` : ""}: ${n(o.r.words)} words</title><circle r="30" class="o-hit"/>${PARTY.some((c) => c.r.login === o.r.login) ? sparkles() : ""}${collider ? `<g transform="scale(1.3)"><g class="o-rot">${particleBody(kit(o.r), true)}</g></g>` : `<g class="o-float" style="animation-delay:-${(i * 0.7).toFixed(1)}s"><g transform="scale(1.15)">${astroBody(kit(o.r))}</g></g>`}<text class="o-name" y="-44">${esc(o.r.name)}</text>${o.r.nickname ? `<text class="o-nick" y="44">${esc(o.r.nickname)}</text>` : ""}</g>`).join("")}</g>
     </svg>`;
@@ -554,6 +561,7 @@ jobs:
       }
     });
     place(1);
+    startMeteors($("orbit").querySelector("svg"), W, H);
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const t0 = performance.now();
     place(0);
@@ -571,9 +579,33 @@ jobs:
     }
     return g + "</g>";
   }
-  function shootingStars(W, H) {
-    return [0, 1, 2].map((i) => `<g class="o-shoot" style="animation-delay:${i * 2.3}s;--sx:${(W * (0.1 + 0.3 * i)).toFixed(0)}px;--sy:${(H * (0.05 + 0.08 * i)).toFixed(0)}px"><line x1="0" y1="0" x2="-70" y2="-26" stroke="url(#tail)" stroke-width="3" stroke-linecap="round"/><circle r="3.2" fill="#fff"/></g>`).join("");
+  // Meteors: a thin streak that grows a tail, flies a short way and burns out, at random
+  // moments, angles and places, the way real ones do.
+  let meteorTimer = null;
+  function startMeteors(svg, W, H) {
+    clearTimeout(meteorTimer);
+    if (!PARTY.length || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const layer = svg.querySelector(".o-meteors");
+    const rnd = (lo, hi) => lo + Math.random() * (hi - lo);
+    const fire = () => {
+      if (!layer.isConnected) return;
+      const dir = Math.random() < 0.5 ? 1 : -1;
+      const ang = dir > 0 ? rnd(18, 38) : 180 - rnd(18, 38);
+      const x0 = rnd(0.15, 0.85) * W, y0 = rnd(0.02, 0.3) * H, dist = rnd(220, 380), tail = rnd(80, 140);
+      const rad = (ang * Math.PI) / 180, x1 = x0 + Math.cos(rad) * dist, y1 = y0 + Math.sin(rad) * dist;
+      const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      g.innerHTML = `<line x1="0" y1="0" x2="${-tail}" y2="0" stroke="url(#meteor)" stroke-width="1.6" stroke-linecap="round"/><circle r="1.7" fill="#fff" filter="url(#mglow)"/>`;
+      layer.appendChild(g);
+      const line = g.firstChild, ms = rnd(650, 1050);
+      const at = (x, y) => `translate(${x}px, ${y}px) rotate(${ang}deg)`;
+      g.animate([{ transform: at(x0, y0), opacity: 0 }, { opacity: 1, offset: 0.12 }, { opacity: 1, offset: 0.7 }, { transform: at(x1, y1), opacity: 0 }], { duration: ms, easing: "cubic-bezier(.3,.1,.7,1)" });
+      line.animate([{ transform: "scaleX(0.05)" }, { transform: "scaleX(1)", offset: 0.55 }, { transform: "scaleX(0.6)" }], { duration: ms });
+      setTimeout(() => g.remove(), ms + 50);
+      meteorTimer = setTimeout(fire, rnd(1800, 5200));
+    };
+    meteorTimer = setTimeout(fire, rnd(400, 1500));
   }
+
 
   // Saturn: drifting cloud bands under a fixed shadow, with rocking, glittering rings.
   function saturn(cx, cy) {
@@ -638,7 +670,7 @@ jobs:
   const BOARD_WHY = {
     words: "Who has written the most so far: everything in their thesis right now.",
     week: "Who added the most words in the last seven days, so a big week can beat a long thesis.",
-    streak: "Who has added words the most days in a row, however few.",
+    streak: "Who has added words the most days in a row, however few. Weekends are rest days, so they never break a streak.",
   };
   function renderBoard() {
     const cat = DATA.race.caterpillar_words;
@@ -667,8 +699,8 @@ jobs:
   // One fortune card per racer, in plain sentences: when they cross their next
   // 10k milestone, and (if they gave a date) roughly where they'll be on submission day.
   function renderPredict() {
-    const total = racers.reduce((s, r) => s + r.words, 0);
-    const groupRate = racers.reduce((s, r) => s + r.rate, 0);
+    const total = EVERYONE.reduce((s, r) => s + r.words, 0);
+    const groupRate = EVERYONE.reduce((s, r) => s + r.rate, 0);
     const gStep = total >= 50000 ? 50000 : 10000;
     const gNext = (Math.floor(total / gStep) + 1) * gStep;
     const gEta = groupRate > 0 ? iso(new Date(+toDate(TODAY) + Math.ceil((gNext - total) / groupRate) * DAY)) : null;
@@ -824,7 +856,7 @@ jobs:
   // ---------- heatmap ----------
   function renderHeat() {
     const byDay = {};
-    for (const r of racers) for (const [d, v] of r.daily) if (v > 0) byDay[d] = (byDay[d] || 0) + v;
+    for (const r of EVERYONE) for (const [d, v] of r.daily) if (v > 0) byDay[d] = (byDay[d] || 0) + v;
     const weeks = 26, end = toDate(TODAY);
     const startT = new Date(+end - ((weeks - 1) * 7 + ((end.getUTCDay() + 6) % 7)) * DAY); // a Monday
     const max = Math.max(1, ...Object.values(byDay));

@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 
 from common import ROOT, all_racers, race
 
-PUBLIC_FIELDS = ("login", "name", "nickname", "emoji", "astro", "deadline", "method", "joined", "history", "note")
+PUBLIC_FIELDS = ("login", "name", "nickname", "emoji", "astro", "deadline", "method", "joined", "history", "note", "quiet")
 
 out = {
     "race": race(),
