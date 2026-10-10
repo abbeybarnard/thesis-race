@@ -290,8 +290,12 @@ jobs:
   function astroBody(k) {
     const [suit, shade] = SUITS[k.suit];
     const o = `stroke="${INK}" stroke-width="1.5" stroke-linejoin="round"`;
-    const flames = k.pack === "flames" ? `<g class="flame"><path d="M-15 15 Q-12.5 31 -10 15 Z" fill="#ffd56b"/><path d="M10 15 Q12.5 31 15 15 Z" fill="#ffd56b"/><path d="M-14 15 Q-12.5 24 -11 15 Z" fill="#ff5fb0"/><path d="M11 15 Q12.5 24 14 15 Z" fill="#ff5fb0"/></g>` : "";
-    return `${flames}<rect x="-13" y="-2" width="26" height="19" rx="5" fill="${shade}" ${o}/>
+    // Jetpack: two nozzles mirrored about the middle, each with its flame directly underneath.
+    const jet = k.pack === "flames";
+    const side = (m) => `<path d="M${m * 14} 19.5 Q${m * 12} 31.5 ${m * 10} 19.5 Z" fill="#ffd56b"/><path d="M${m * 13} 19.5 Q${m * 12} 25.5 ${m * 11} 19.5 Z" fill="#ff5fb0"/>`;
+    const nozzle = (m) => `<path d="M${m * 14.5} 15.5 L${m * 9.5} 15.5 L${m * 10.3} 20 L${m * 13.7} 20 Z" fill="${shade}" ${o}/>`;
+    const flames = jet ? `<g class="flame">${side(-1)}${side(1)}</g>` : "";
+    return `${flames}<rect x="${jet ? -15 : -13}" y="2" width="${jet ? 30 : 26}" height="15" rx="4.5" fill="${shade}" ${o}/>${jet ? nozzle(-1) + nozzle(1) : ""}
       <rect x="-8.5" y="16" width="7" height="10" rx="3" fill="${shade}" ${o}/><rect x="1.5" y="16" width="7" height="10" rx="3" fill="${shade}" ${o}/>
       ${arm("M-7 5 Q-15 6 -17 12", suit, shade)}${arm("M7 6 Q14 5 15.5 -3", suit, shade)}
       <rect x="-10" y="1" width="20" height="19" rx="7" fill="${suit}" ${o}/>
