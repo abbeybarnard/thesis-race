@@ -11,6 +11,7 @@
   const iso = (d) => d.toISOString().slice(0, 10);
   const nice = (s, opts = { day: "numeric", month: "short" }) => toDate(s).toLocaleDateString("en-GB", { ...opts, timeZone: "UTC" });
   const longDate = { day: "numeric", month: "short", year: "numeric" };
+  const niceYr = (s) => nice(s, s.slice(0, 4) === TODAY.slice(0, 4) ? undefined : longDate); // adds the year when it isn't this year
 
   let DATA, TODAY, racers, EVERYONE, sortKey = "words";
   const SKINS = {
@@ -714,8 +715,8 @@ jobs:
     const gEta = groupRate > 0 ? iso(new Date(+toDate(TODAY) + Math.ceil((gNext - total) / groupRate) * DAY)) : null;
     const nextUp = racers.filter((r) => r.milestoneEta).sort((a, b) => a.milestoneEta.localeCompare(b.milestoneEta))[0];
     const bits = [];
-    if (gEta) bits.push(stat(nice(gEta), `Together we pass ${k(gNext)}`, `${inDays(gEta)}, at ${n(groupRate)} words a day between us`));
-    if (nextUp) bits.push(stat(nice(nextUp.milestoneEta), "Next milestone", `${nextUp.name} reaches ${k(nextUp.nextMilestone)} words ${inDays(nextUp.milestoneEta)}`));
+    if (gEta) bits.push(stat(niceYr(gEta), `Together we pass ${k(gNext)}`, `${inDays(gEta)}, at ${n(groupRate)} words a day between us`));
+    if (nextUp) bits.push(stat(niceYr(nextUp.milestoneEta), "Next milestone", `${nextUp.name} reaches ${k(nextUp.nextMilestone)} words ${inDays(nextUp.milestoneEta)}`));
     $("predict-headline").innerHTML = bits.join("");
 
     const step = DATA.race.milestone || 10000;
@@ -746,11 +747,13 @@ jobs:
       if (cursed && cursed.login === r.login) {
         return `<article class="fc fc-cursed">${head}<p class="fc-tag">🔮 Today's prophecy</p><p class="fc-big">${esc(cursed.line)}</p><p class="fc-pace">The crystal ball is never wrong.</p></article>`;
       }
+      // A slow few weeks can push the next milestone past submission day; don't predict a date that never comes.
+      const late = r.deadline && r.milestoneEta > r.deadline;
       return `<article class="fc">${head}
-        <p class="fc-big">Reaches <strong>${n(r.nextMilestone)} words</strong> around <strong>${nice(r.milestoneEta)}</strong></p>
+        <p class="fc-big">${late ? `Next stop: <strong>${n(r.nextMilestone)} words</strong>` : `Reaches <strong>${n(r.nextMilestone)} words</strong> around <strong>${niceYr(r.milestoneEta)}</strong>`}</p>
         <div class="fc-bar" role="img" aria-label="${n(r.words)} of ${n(r.nextMilestone)} words"><span style="width:${done}%"></span></div>
-        <p class="fc-sub"><span>${k(from)}</span><span>${n(r.nextMilestone - r.words)} words to go, ${inDays(r.milestoneEta)}</span><span>${k(r.nextMilestone)}</span></p>
-        <p class="fc-pace">Writing about ${n(r.rate)} words a day lately.</p>
+        <p class="fc-sub"><span>${k(from)}</span><span>${n(r.nextMilestone - r.words)} words to go${late ? "" : `, ${inDays(r.milestoneEta)}`}</span><span>${k(r.nextMilestone)}</span></p>
+        <p class="fc-pace">Writing about ${n(r.rate)} words a day lately.${late ? " The crystal ball needs a few more busy days before it can see a date." : ""}</p>
         ${day}</article>`;
     }).join("");
   }
