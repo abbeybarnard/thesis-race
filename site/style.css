@@ -514,10 +514,16 @@ button.btn { font: inherit; font-weight: 600; cursor: pointer; }
 .clippy-btns { display: flex; gap: 8px; flex-wrap: wrap; }
 .clippy-btns button { font: inherit; font-size: .85rem; padding: 4px 12px; border: 1.5px solid #24183f; border-radius: 6px; background: #fff; color: #24183f; cursor: pointer; }
 .clippy-btns button:hover { background: #ffe68a; }
-.clippy-clip { width: 70px; height: 116px; flex: none; filter: drop-shadow(0 6px 12px rgb(0 0 0 / .5)); animation: clippy-bob 2.6s ease-in-out infinite; }
+.clippy-clip { width: 84px; height: 121px; flex: none; filter: drop-shadow(0 6px 12px rgb(0 0 0 / .5)); animation: clippy-bob 2.6s ease-in-out infinite; }
 .clippy-pupil { animation: clippy-glare 3.2s ease-in-out infinite; }
 .clippy.cackle .clippy-clip { animation: clippy-cackle .18s linear 10; }
 @keyframes clippy-bob { 50% { transform: translateY(-5px) rotate(-3deg); } }
 @keyframes clippy-glare { 0%, 40%, 100% { transform: none; } 50%, 80% { transform: translateX(-3px); } }
 @keyframes clippy-cackle { 50% { transform: rotate(6deg); } }
 @media (prefers-reduced-motion: reduce) { .clippy { transition: none; } .clippy-clip, .clippy-pupil, .clippy.cackle .clippy-clip { animation: none; } }
+
+/* "Go to bed" note, after midnight */
+.bedtime { position: fixed; top: 14px; left: 50%; z-index: 55; display: flex; align-items: center; gap: 10px; max-width: calc(100vw - 32px); padding: 8px 10px 8px 16px; border-radius: 999px; background: rgb(27 16 64 / .92); border: 1px solid var(--violet); color: var(--ink); font-size: .9rem; box-shadow: 0 6px 24px rgb(0 0 0 / .45); opacity: 0; transform: translate(-50%, -30px); transition: opacity .6s, transform .6s; pointer-events: none; }
+.bedtime.in { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+.bedtime button { background: none; border: 0; color: var(--muted); font-size: 1.2rem; line-height: 1; cursor: pointer; }
+@media (prefers-reduced-motion: reduce) { .bedtime { transition: none; } }

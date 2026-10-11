@@ -70,6 +70,7 @@
     renderChart();
     renderHeat();
     evilClippy();
+    bedtime();
     document.querySelectorAll("[data-skin-pick]").forEach((b) => b.addEventListener("click", () => setSkin(b.dataset.skinPick)));
     const gen = data.generated ? new Date(data.generated) : null;
     $("updated").textContent = gen ? `Last updated ${gen.toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}.` : "";
@@ -545,7 +546,7 @@ jobs:
         <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
       </defs>
       ${rings}
-      ${collider ? detector(cx, cy) : saturn(cx, cy)}
+      ${collider ? detector(cx, cy) : `<g class="o-saturn" style="transform-origin:${cx}px ${cy}px">${saturn(cx, cy)}</g>`}
       ${gate}
       <g class="o-meteors" aria-hidden="true"></g>
       <text x="${cx}" y="${cy - (collider ? 88 : 78)}" class="o-sub">${n(total)} words between us</text>
@@ -564,6 +565,7 @@ jobs:
       }
     });
     place(1);
+    if (!collider) saturnEgg($("orbit").querySelector(".o-saturn"), $("orbit").querySelector(".o-sub"), W, H);
     startMeteors($("orbit").querySelector("svg"), W, H);
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const t0 = performance.now();
@@ -976,6 +978,39 @@ jobs:
   }
 
 
+
+  // Easter egg: click Saturn five times quickly and it wobbles out of orbit, then drifts back.
+  function saturnEgg(planet, sub, W, H) {
+    let clicks = [], busy = false;
+    planet.addEventListener("click", () => {
+      const now = Date.now();
+      clicks = clicks.filter((t) => now - t < 2500).concat(now);
+      if (clicks.length < 5 || busy) return;
+      clicks = []; busy = true;
+      const before = sub.textContent;
+      sub.textContent = "Houston, we have a problem.";
+      const done = () => { sub.textContent = before; busy = false; };
+      if (matchMedia("(prefers-reduced-motion: reduce)").matches) return setTimeout(done, 4000);
+      const wobble = planet.animate(
+        [0, 6, -8, 12, -14, 18, -10, 0].map((d) => ({ transform: `rotate(${d}deg)` })),
+        { duration: 1400, easing: "ease-in-out" });
+      wobble.onfinish = () => {
+        sub.textContent = "Saturn has left the chat.";
+        const away = planet.animate(
+          [{ transform: "none" }, { transform: `translate(${W}px, ${-H * 0.6}px) rotate(220deg) scale(0.3)` }],
+          { duration: 2600, easing: "cubic-bezier(.5,0,.9,.6)", fill: "forwards" });
+        away.onfinish = () => setTimeout(() => {
+          sub.textContent = "Oh no, it's coming back.";
+          const back = planet.animate(
+            [{ transform: `translate(${-W}px, ${H * 0.5}px) rotate(-200deg) scale(0.3)` }, { transform: "none" }],
+            { duration: 3000, easing: "cubic-bezier(.1,.5,.3,1)" });
+          away.cancel();
+          back.onfinish = done;
+        }, 3000);
+      };
+    });
+  }
+
   // Easter egg: Evil Clippy, an (original, home-drawn) evil paperclip who offers "help".
   // Turns up on about 1 visit in 20, always in the demo, with ?clippy, or when you type "clippy".
   const CLIPPY_LINES = [
@@ -1007,8 +1042,14 @@ jobs:
           <p class="clippy-say">${esc(pick(CLIPPY_LINES))}</p>
           <div class="clippy-btns"><button type="button" data-a="yes">Yes please</button><button type="button" data-a="no">No thanks</button></div>
         </div>
-        <svg class="clippy-clip" viewBox="0 0 70 116" aria-hidden="true">
+        <svg class="clippy-clip" viewBox="0 0 90 130" aria-hidden="true">
           <defs><linearGradient id="clip-metal" x1="0" x2="1"><stop offset="0" stop-color="#8f88a8"/><stop offset=".45" stop-color="#f4f0ff"/><stop offset="1" stop-color="#7a7392"/></linearGradient></defs>
+          <g transform="rotate(-5 45 110)">
+            <path d="M6 96 H74 L84 106 V128 H6Z" fill="#fff3a6" stroke="#1a1230" stroke-width="2"/>
+            <path d="M74 96 V106 H84" fill="#e6d66e" stroke="#1a1230" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M12 108 H78 M12 115 H78 M12 122 H78" stroke="#8db8ea" stroke-width="1.5"/>
+          </g>
+          <g transform="translate(10 0)">
           <path d="M44 40 V94 A12 12 0 0 1 20 94 V24 A17 17 0 0 1 54 24 V86" fill="none" stroke="#1a1230" stroke-width="9" stroke-linecap="round"/>
           <path d="M44 40 V94 A12 12 0 0 1 20 94 V24 A17 17 0 0 1 54 24 V86" fill="none" stroke="url(#clip-metal)" stroke-width="5.5" stroke-linecap="round"/>
           <g class="clippy-eyes">
@@ -1019,6 +1060,7 @@ jobs:
           </g>
           <path d="M11 37 L30 44 M55 37 L36 44" stroke="#1a1230" stroke-width="4" stroke-linecap="round"/>
           <path d="M24 66 Q33 72 42 66" fill="none" stroke="#1a1230" stroke-width="2.5" stroke-linecap="round"/>
+          </g>
         </svg>`;
       document.body.append(el);
       requestAnimationFrame(() => el.classList.add("in"));
@@ -1039,6 +1081,23 @@ jobs:
     });
     if (DATA.demo || /[?&]clippy\b/.test(location.search)) setTimeout(show, DATA.demo ? 8000 : 1500);
     else if (Math.random() < 0.05) setTimeout(show, 40000);
+  }
+
+
+  // Easter egg: between midnight and 5am (your own clock), a little note tells you to go to bed.
+  // Always shown in the demo, or add ?bedtime to see it.
+  function bedtime() {
+    const now = new Date(), h = now.getHours();
+    const forced = DATA.demo || /[?&]bedtime\b/.test(location.search);
+    if (!forced && h >= 5) return;
+    const time = now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+    const lines = [`It's ${time}. Go to bed 🌙`, `It's ${time}. The thesis will still be here tomorrow. Go to bed 🌙`, `It's ${time}. Even the clankers are asleep. Go to bed 🌙`, `It's ${time}. Sleep is also research. Go to bed 🌙`];
+    const el = document.createElement("aside");
+    el.className = "bedtime";
+    el.innerHTML = `<span>${esc(lines[Math.floor(Math.random() * lines.length)])}</span><button type="button" aria-label="Dismiss">×</button>`;
+    el.querySelector("button").onclick = () => { el.classList.remove("in"); setTimeout(() => el.remove(), 600); };
+    document.body.append(el);
+    setTimeout(() => el.classList.add("in"), forced ? 2500 : 6000);
   }
 
 })();
