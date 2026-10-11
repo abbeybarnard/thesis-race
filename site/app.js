@@ -18,14 +18,14 @@
     space: {
       lede: "Everyone's word count, live from orbit. Only the numbers are shared, never the theses.",
       track: "In orbit", gate: "FINISH GATE", crew: "The Launch Crew", chart: "Flight paths",
-      hint: (f, m) => `Everyone flies anticlockwise towards the finish gate at ${f} words. Each time someone reaches it, the gate moves another ${m} words out, like an expanding universe.`,
+      hint: (f, m) => `Everyone flies towards the finish gate at ${f} words. Each time someone reaches it, the gate moves another ${m} words out, like an expanding universe.`,
       far: ["🌌", "Furthest from Earth"], steady: ["🛰️", "Steady orbit"],
       doom: "Spaceship departs in", doomDone: "The spaceship has departed. Godspeed.",
     },
     collider: {
       lede: "Everyone's word count, live from the beam pipe. Only the numbers are shared, never the theses.",
       track: "In the ring", gate: "INTERACTION POINT", crew: "The Collaboration", chart: "Integrated luminosity",
-      hint: (f, m) => `Everyone circulates anticlockwise towards the interaction point at ${f} words. Each time someone collides with it, the beam energy goes up another ${m} words.`,
+      hint: (f, m) => `Everyone circulates towards the interaction point at ${f} words. Each time someone collides with it, the beam energy goes up another ${m} words.`,
       far: ["⚡", "Highest energy"], steady: ["🧲", "Stable beam"],
       doom: "Beam dump in", doomDone: "The beam has been dumped. Godspeed.",
     },

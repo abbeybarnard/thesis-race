@@ -107,7 +107,7 @@ h1 .kicker {
 .lane-no { font: 600 0.8rem var(--mono); color: var(--muted); text-align: right; }
 .lane-run { position: relative; height: 2.6rem; border-bottom: 1px dashed var(--line); margin-right: 1.3rem; }
 .lane-run::after { content: "🏁"; position: absolute; right: -1.3rem; top: 50%; transform: translateY(-50%); }
-.lane .runner { position: absolute; top: 50%; left: var(--x); transform: translate(-50%, -50%); display: flex; align-items: center; gap: 0.35rem; }
+.lane .runner { position: absolute; top: 50%; left: var(--x); transform: translate(calc(var(--x) * -1), -50%); /* slide the runner back by the same share so it never pokes past the number or the flag */ display: flex; align-items: center; gap: 0.35rem; }
 .lane .runner.flip { flex-direction: row-reverse; }
 .lane .bib { width: 2rem; height: 2rem; border-radius: 50%; background: var(--surface-solid); border: 1.5px solid var(--violet); display: grid; place-items: center; font-size: 1rem; flex: none; }
 .lane .runner-name { font-weight: 600; font-size: 0.85rem; white-space: nowrap; }
@@ -525,5 +525,6 @@ button.btn { font: inherit; font-weight: 600; cursor: pointer; }
 /* "Go to bed" note, after midnight */
 .bedtime { position: fixed; top: 14px; left: 50%; z-index: 55; display: flex; align-items: center; gap: 10px; max-width: calc(100vw - 32px); padding: 8px 10px 8px 16px; border-radius: 999px; background: rgb(27 16 64 / .92); border: 1px solid var(--violet); color: var(--ink); font-size: .9rem; box-shadow: 0 6px 24px rgb(0 0 0 / .45); opacity: 0; transform: translate(-50%, -30px); transition: opacity .6s, transform .6s; pointer-events: none; }
 .bedtime.in { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+@media (max-width: 640px) { .bedtime { left: 16px; right: 16px; max-width: none; border-radius: 16px; font-size: .85rem; transform: translateY(-30px); } .bedtime.in { transform: none; } .bedtime span { flex: 1; } }
 .bedtime button { background: none; border: 0; color: var(--muted); font-size: 1.2rem; line-height: 1; cursor: pointer; }
 @media (prefers-reduced-motion: reduce) { .bedtime { transition: none; } }
