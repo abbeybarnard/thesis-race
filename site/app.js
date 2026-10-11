@@ -69,6 +69,7 @@
     renderSkinned();
     renderChart();
     renderHeat();
+    evilClippy();
     document.querySelectorAll("[data-skin-pick]").forEach((b) => b.addEventListener("click", () => setSkin(b.dataset.skinPick)));
     const gen = data.generated ? new Date(data.generated) : null;
     $("updated").textContent = gen ? `Last updated ${gen.toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}.` : "";
@@ -972,6 +973,72 @@ jobs:
     new MutationObserver(() => { size(); if (still) draw(0); }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-skin"] });
     if (still) addEventListener("scroll", () => draw(0), { passive: true });
     still ? draw(0) : requestAnimationFrame(draw);
+  }
+
+
+  // Easter egg: Evil Clippy, an (original, home-drawn) evil paperclip who offers "help".
+  // Turns up on about 1 visit in 20, always in the demo, with ?clippy, or when you type "clippy".
+  const CLIPPY_LINES = [
+    "It looks like you're writing a thesis. Would you like me to delete the conclusions?",
+    "It looks like you're writing a thesis. Would you like help procrastinating?",
+    "I see you cited a paper from 2014. Shall I tell Reviewer 2?",
+    "It looks like your supervisor wants just one more plot. Shall I make it forty?",
+    "I noticed a file called thesis_FINAL_final_v7.tex. Would you like a v8?",
+    "It looks like you're near the page limit. Shall I make everything double-spaced?",
+    "Would you like me to change all your figures to Comic Sans?",
+    "I've hidden one \\end{itemize} somewhere in your thesis. Good luck.",
+    "It looks like you're about to compile. Would you like 347 warnings?",
+    "Your word count looks healthy. Shall I fix that?",
+  ];
+  const CLIPPY_YES = ["Done. Just kidding. …Or am I?", "Excellent. I'll start with Chapter 3.", "Processing… Your bibliography is now in Wingdings.", "Too late, I already did it yesterday."];
+  const CLIPPY_NO = ["I'll be back. I'm always back.", "Fine. I'll be in your .aux files.", "You can't close me. I'm a feeling.", "Suit yourself. Enjoy your overfull hboxes."];
+  function evilClippy() {
+    const pick = (a) => a[Math.floor(Math.random() * a.length)];
+    let shown = false;
+    const show = () => {
+      if (shown || document.querySelector(".clippy")) return;
+      shown = true;
+      const el = document.createElement("aside");
+      el.className = "clippy";
+      el.setAttribute("role", "dialog");
+      el.setAttribute("aria-label", "Evil Clippy");
+      el.innerHTML = `<div class="clippy-bubble">
+          <button class="clippy-x" type="button" aria-label="Close">×</button>
+          <p class="clippy-say">${esc(pick(CLIPPY_LINES))}</p>
+          <div class="clippy-btns"><button type="button" data-a="yes">Yes please</button><button type="button" data-a="no">No thanks</button></div>
+        </div>
+        <svg class="clippy-clip" viewBox="0 0 70 116" aria-hidden="true">
+          <defs><linearGradient id="clip-metal" x1="0" x2="1"><stop offset="0" stop-color="#8f88a8"/><stop offset=".45" stop-color="#f4f0ff"/><stop offset="1" stop-color="#7a7392"/></linearGradient></defs>
+          <path d="M44 40 V94 A12 12 0 0 1 20 94 V24 A17 17 0 0 1 54 24 V86" fill="none" stroke="#1a1230" stroke-width="9" stroke-linecap="round"/>
+          <path d="M44 40 V94 A12 12 0 0 1 20 94 V24 A17 17 0 0 1 54 24 V86" fill="none" stroke="url(#clip-metal)" stroke-width="5.5" stroke-linecap="round"/>
+          <g class="clippy-eyes">
+            <ellipse cx="21" cy="50" rx="8" ry="9" fill="#fff" stroke="#1a1230" stroke-width="2"/>
+            <ellipse cx="45" cy="50" rx="8" ry="9" fill="#fff" stroke="#1a1230" stroke-width="2"/>
+            <circle class="clippy-pupil" cx="24" cy="52" r="3.6" fill="#ff2a3d"/>
+            <circle class="clippy-pupil" cx="42" cy="52" r="3.6" fill="#ff2a3d"/>
+          </g>
+          <path d="M11 37 L30 44 M55 37 L36 44" stroke="#1a1230" stroke-width="4" stroke-linecap="round"/>
+          <path d="M24 66 Q33 72 42 66" fill="none" stroke="#1a1230" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>`;
+      document.body.append(el);
+      requestAnimationFrame(() => el.classList.add("in"));
+      const leave = (line) => {
+        el.querySelector(".clippy-say").textContent = line;
+        el.querySelector(".clippy-btns").remove();
+        setTimeout(() => { el.classList.remove("in"); setTimeout(() => el.remove(), 600); }, 2600);
+      };
+      el.querySelector(".clippy-x").onclick = () => leave(pick(CLIPPY_NO));
+      el.querySelector('[data-a="no"]').onclick = () => leave(pick(CLIPPY_NO));
+      el.querySelector('[data-a="yes"]').onclick = () => { el.classList.add("cackle"); leave(pick(CLIPPY_YES)); };
+    };
+    let typed = "";
+    addEventListener("keydown", (e) => {
+      if (e.key.length !== 1 || e.target.closest?.("input, textarea, select")) return;
+      typed = (typed + e.key.toLowerCase()).slice(-6);
+      if (typed === "clippy") { shown = false; show(); }
+    });
+    if (DATA.demo || /[?&]clippy\b/.test(location.search)) setTimeout(show, DATA.demo ? 8000 : 1500);
+    else if (Math.random() < 0.05) setTimeout(show, 40000);
   }
 
 })();
