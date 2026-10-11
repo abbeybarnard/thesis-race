@@ -741,7 +741,7 @@ jobs:
         }
       }
       if (cursed && cursed.login === r.login) {
-        return `<article class="fc fc-cursed">${head}<p class="fc-tag">🔮 Today's prophecy</p><p class="fc-big">${esc(cursed.line)}</p><p class="fc-pace">The crystal ball is never wrong. (It is often wrong.)</p></article>`;
+        return `<article class="fc fc-cursed">${head}<p class="fc-tag">🔮 Today's prophecy</p><p class="fc-big">${esc(cursed.line)}</p><p class="fc-pace">The crystal ball is never wrong.</p></article>`;
       }
       return `<article class="fc">${head}
         <p class="fc-big">Reaches <strong>${n(r.nextMilestone)} words</strong> around <strong>${nice(r.milestoneEta)}</strong></p>
