@@ -2,7 +2,8 @@
   "login": "Jasminesimms",
   "joined": "2026-10-11",
   "history": {
-    "2026-10-11": 0
+    "2026-10-11": 0,
+    "2026-10-20": 130
   },
   "name": "Jasmine",
   "nickname": "Self-Annihilating Superstar",
@@ -14,5 +15,6 @@
     "pack": "flames"
   },
   "method": "manual",
-  "deadline": "2027-04-01"
+  "deadline": "2027-04-01",
+  "note": "Finally finished the detector chapter!"
 }
