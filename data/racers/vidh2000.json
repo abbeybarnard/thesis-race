@@ -2,7 +2,8 @@
   "login": "vidh2000",
   "joined": "2026-10-20",
   "history": {
-    "2026-10-20": 9906
+    "2026-10-20": 9906,
+    "2026-10-24": 12054
   },
   "name": "Vid",
   "nickname": "Footnote Fanatic",
@@ -14,5 +15,6 @@
     "pack": "flames"
   },
   "method": "manual",
-  "deadline": "2026-12-01"
+  "deadline": "2026-12-01",
+  "note": "Finally finished the ATLAS detector and object reconstruction chapter"
 }
