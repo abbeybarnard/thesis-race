@@ -5,7 +5,8 @@
     "2026-10-20": 9906,
     "2026-10-24": 12054,
     "2026-11-03": 14001,
-    "2026-11-04": 15067
+    "2026-11-04": 15067,
+    "2026-11-24": 20100
   },
   "name": "Vid",
   "nickname": "Footnote Fanatic",
@@ -18,5 +19,5 @@
   },
   "method": "manual",
   "deadline": "2026-12-01",
-  "note": "Finally finished the ATLAS detector and object reconstruction chapter"
+  "note": "1 chapter left!"
 }
